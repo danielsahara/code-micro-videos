@@ -20,6 +20,7 @@ class CategoryControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+//        $this->getMockForAbstractClass();
         $this->category = factory(Category::class)->create();
     }
 
