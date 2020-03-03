@@ -39,8 +39,8 @@ abstract class BasicCrudController extends Controller
 
     public function update(Request $request, $id)
     {
-        $validatedData = $this->validate($request, $this->rulesStore());
         $obj = $this->findOrFail($id);
+        $validatedData = $this->validate($request, $this->rulesUpdate());
         $obj->update($validatedData);
 
         return $obj;

@@ -2,14 +2,14 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\CastMember;
+use App\Models\Genre;
 use App\Models\Traits\Uuid;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Tests\TestCase;
 
-class CastMemberTest extends TestCase
+class GenreUnitTest extends TestCase
 {
-    private $castMember;
+    private $genre;
 
     public static function setUpBeforeClass()
     {
@@ -24,7 +24,7 @@ class CastMemberTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->castMember = new CastMember();
+        $this->genre = new Genre();
     }
 
     protected function tearDown(): void
@@ -34,9 +34,9 @@ class CastMemberTest extends TestCase
 
     public function testFillableAttribute()
     {
-        $fillable = ['name', 'type'];
+        $fillable = ['name', 'is_active'];
 
-        $this->assertEquals($fillable, $this->castMember->getFillable());
+        $this->assertEquals($fillable, $this->genre->getFillable());
     }
 
     public function testDatesAttribute()
@@ -44,9 +44,9 @@ class CastMemberTest extends TestCase
         $dates = ['deleted_at', 'created_at', 'updated_at'];
 
         foreach ($dates as $date){
-            $this->assertContains($date, $this->castMember->getDates());
+            $this->assertContains($date, $this->genre->getDates());
         }
-        $this->assertCount(count($dates), $this->castMember->getDates());
+        $this->assertCount(count($dates), $this->genre->getDates());
     }
 
     public function testIfUseTraits(){
@@ -54,11 +54,17 @@ class CastMemberTest extends TestCase
             SoftDeletes::class, Uuid::class
         ];
 
-        $castMemberTraits = array_keys(class_uses(CastMember::class));
-        $this->assertEquals($traits, $castMemberTraits);
+        $genreTraits = array_keys(class_uses(Genre::class));
+        $this->assertEquals($traits, $genreTraits);
+    }
+
+    public function testCastsAttribute(){
+        $casts = ['id' => 'string', 'is_active' => 'boolean'];
+
+        $this->assertEquals($casts, $this->genre->getCasts());
     }
 
     public function testIncrementing(){
-        $this->assertFalse($this->castMember->incrementing);
+        $this->assertFalse($this->genre->incrementing);
     }
 }
