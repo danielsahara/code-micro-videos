@@ -11,14 +11,16 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Tests\Exceptions\TestException;
 use Tests\TestCase;
 use Tests\Traits\TestSaves;
+use Tests\Traits\TestUploads;
 use Tests\Traits\TestValidations;
 
 class VideoControllerTest extends TestCase
 {
-    use DatabaseMigrations, TestValidations, TestSaves;
+    use DatabaseMigrations, TestValidations, TestSaves, TestUploads;
 
     private $video;
     private $sendData;
@@ -175,7 +177,7 @@ class VideoControllerTest extends TestCase
         $this->assertInvalidationInUpdateAction($data, 'in');
     }
 
-    public function testSave(){
+    public function testSaveWithoutFiles(){
         $category = factory(Category::class)->create();
         $genre = factory(Genre::class)->create();
 
@@ -257,6 +259,37 @@ class VideoControllerTest extends TestCase
             'video_id' => $videoId,
             'genre_id' => $genreId,
         ]);
+    }
+
+    public function testStoreWithFiles(){
+        \Storage::fake();
+        $files = $this->getFiles();
+
+        $category = factory(Category::class)->create();
+        $genre = factory(Genre::class)->create();
+        $genre->categories()->sync($category->id);
+
+        $response = $this->json(
+            'POST',
+            $this->routeStore(), $this->sendData + [
+                'categories_id' => [$category->id],
+                'genres_id' => [$genre->id],
+            ] +
+            $files
+        );
+        $response->assertStatus(201);
+        $id = $response->json('id');
+
+        foreach ($files as $file){
+            \Storage::assertExists("$id/{$file->hashName()}");
+        }
+
+    }
+
+    protected function getFiles(){
+        return [
+            'video_file' => UploadedFile::fake()->create('video_file.mp4')
+        ];
     }
 
     public function testSyncCategories(){
@@ -366,6 +399,15 @@ class VideoControllerTest extends TestCase
 
         $this->assertNull(Video::find($this->video->id));
         $this->assertNotNull(Video::withTrashed()->find($this->video->id));
+    }
+
+    public function testInvalidationVideoField(){
+        $this->assertInvalidationFile(
+            'video_file',
+            'mp4',
+            12,
+            'mimetypes', ['values' => 'video/mp4']
+        );
     }
 
     protected function model()
