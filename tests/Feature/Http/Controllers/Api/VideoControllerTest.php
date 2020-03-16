@@ -401,15 +401,6 @@ class VideoControllerTest extends TestCase
         $this->assertNotNull(Video::withTrashed()->find($this->video->id));
     }
 
-    public function testInvalidationVideoField(){
-        $this->assertInvalidationFile(
-            'video_file',
-            'mp4',
-            12,
-            'mimetypes', ['values' => 'video/mp4']
-        );
-    }
-
     protected function model()
     {
         return Video::class;

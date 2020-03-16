@@ -31,7 +31,7 @@ class GenreControllerTest extends TestCase
 
     public function testIndex()
     {
-
+       
         $response = $this->get(route('genres.index'));
 
         $response

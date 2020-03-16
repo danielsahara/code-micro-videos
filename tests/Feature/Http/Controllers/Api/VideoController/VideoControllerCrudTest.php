@@ -153,34 +153,24 @@ class VideoControllerCrudTest extends BaseVideoControllerTestCase
     }
 
     public function testSaveWithoutFiles(){
-        $category = factory(Category::class)->create();
-        $genre = factory(Genre::class)->create();
-
-        $genre->categories()->sync($category->id);
+        $testData = \Arr::except($this->sendData, ['categories_id', 'genres_id']);
 
         $data = [
             [
-                'send_data' => $this->sendData + [
-                        'categories_id' => [$category->id],
-                        'genres_id' => [$genre->id],
-                    ],
-                'test_data' => $this->sendData + ['opened' => false]
+                'send_data' => $this->sendData,
+                'test_data' => $testData + ['opened' => false]
             ],
             [
                 'send_data' => $this->sendData + [
                         'opened' => true,
-                        'categories_id' => [$category->id],
-                        'genres_id' => [$genre->id],
                     ],
-                'test_data' => $this->sendData + ['opened' => true]
+                'test_data' => $testData + ['opened' => true]
             ],
             [
                 'send_data' => $this->sendData + [
                         'rating' => Video::RATING_LIST[1],
-                        'categories_id' => [$category->id],
-                        'genres_id' => [$genre->id],
                     ],
-                'test_data' => $this->sendData + ['rating' => Video::RATING_LIST[1]],
+                'test_data' => $testData + ['rating' => Video::RATING_LIST[1]],
             ],
         ];
         foreach ($data as $key => $value) {
@@ -242,6 +232,8 @@ class VideoControllerCrudTest extends BaseVideoControllerTestCase
         $genre->categories()->sync($categoriesId);
         $genreId = $genre->id;
 
+        $this->sendData = \Arr::except($this->sendData, ['categories_id', 'genres_id']);
+
         $response = $this->json(
             'POST',
             $this->routeStore(), $this->sendData + [
@@ -279,6 +271,7 @@ class VideoControllerCrudTest extends BaseVideoControllerTestCase
     }
 
     public function testSyncGenres(){
+        $this->sendData = \Arr::except($this->sendData, ['categories_id', 'genres_id']);
         $genres = factory(Genre::class, 3)->create();
         $genresId = $genres->pluck('id')->toArray();
         $categoryId = factory(Category::class)->create()->id;
