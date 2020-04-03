@@ -1,3 +1,4 @@
 .docker/dbdata
 .idea/
 .vscode/
+/backend/storage/credentials/google/service-account-storage.json
