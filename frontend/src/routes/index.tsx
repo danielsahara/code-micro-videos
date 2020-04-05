@@ -6,7 +6,6 @@ interface MyRouteProprs extends RouteProps{
     label: string;
 }
 
-
 const routes : MyRouteProprs[] = [
     {
         label: 'Dashboard',
