@@ -7,6 +7,7 @@ import {Route} from 'react-router';
 import {Link as RouterLink} from 'react-router-dom';
 import {Location} from 'history'
 import routes from "../routes";
+import RouteParser from 'route-parser';
 
 const breadcrumbNameMap: { [key: string]: string } = {};
 
@@ -49,14 +50,19 @@ export default function Breadcrumbs() {
                 {pathnames.map((value, index) => {
                     const last = index === pathnames.length - 1;
                     const to = `${pathnames.slice(0, index + 1).join('/').replace('//', '/')}`;
+                    const route = Object.keys(breadcrumbNameMap).find(path => new RouteParser(path).match(to));
+
+                    if(route === undefined){
+                        return false;
+                    }
 
                     return last ? (
                         <Typography color="textPrimary" key={to}>
-                            {breadcrumbNameMap[to]}
+                            {breadcrumbNameMap[route]}
                         </Typography>
                     ) : (
                         <LinkRouter color="inherit" to={to} key={to}>
-                            {breadcrumbNameMap[to]}
+                            {breadcrumbNameMap[route]}
                         </LinkRouter>
                     );
                 })}

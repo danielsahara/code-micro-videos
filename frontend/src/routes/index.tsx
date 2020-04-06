@@ -31,8 +31,15 @@ const routes : MyRouteProps[] = [
     },
     {
         name: 'categories.edit',
-        label: 'Criar categoria',
+        label: 'Editar categoria',
         path: '/categories/:id/edit',
+        component: CategoryList,
+        exact: true
+    },
+    {
+        name: 'categories.edit',
+        label: 'Teste',
+        path: '/categories/:id/edit/:name',
         component: CategoryList,
         exact: true
     },
