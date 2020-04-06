@@ -8,6 +8,7 @@ import {Link as RouterLink} from 'react-router-dom';
 import {Location} from 'history'
 import routes from "../routes";
 import RouteParser from 'route-parser';
+import {Container} from "@material-ui/core";
 
 const breadcrumbNameMap: { [key: string]: string } = {};
 
@@ -18,15 +19,16 @@ const useStyles = makeStyles((theme: Theme) =>
         root: {
             display: 'flex',
             flexDirection: 'column',
-            width: 360,
         },
-        lists: {
-            backgroundColor: theme.palette.background.paper,
-            marginTop: theme.spacing(1),
-        },
-        nested: {
-            paddingLeft: theme.spacing(4),
-        },
+        linkRouter: {
+            color: "#4db5ab",
+            "&:focus, &:active" : {
+                color: "#4db5ab",
+            },
+            "&:hover" : {
+                color: "#055a52",
+            }
+        }
     }),
 );
 
@@ -61,7 +63,7 @@ export default function Breadcrumbs() {
                             {breadcrumbNameMap[route]}
                         </Typography>
                     ) : (
-                        <LinkRouter color="inherit" to={to} key={to}>
+                        <LinkRouter color="inherit" to={to} key={to} className={classes.linkRouter}>
                             {breadcrumbNameMap[route]}
                         </LinkRouter>
                     );
@@ -71,12 +73,12 @@ export default function Breadcrumbs() {
     }
 
     return (
-        <div className={classes.root}>
+        <Container>
             <Route>
                 {
                     ({location} : {location: Location}) => makeBreadcrumb(location)
                 }
             </Route>
-        </div>
+        </Container>
     );
 }

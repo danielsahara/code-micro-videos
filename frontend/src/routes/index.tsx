@@ -37,9 +37,16 @@ const routes : MyRouteProps[] = [
         exact: true
     },
     {
-        name: 'categories.edit',
-        label: 'Teste',
+        name: 'categories.edit2',
+        label: 'Teste1111111111',
         path: '/categories/:id/edit/:name',
+        component: CategoryList,
+        exact: true
+    },
+    {
+        name: 'categories.edit3',
+        label: 'Teste',
+        path: '/categories/:id/edit/:name/xpto',
         component: CategoryList,
         exact: true
     },
