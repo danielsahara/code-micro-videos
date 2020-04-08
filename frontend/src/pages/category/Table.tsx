@@ -1,8 +1,7 @@
-// @flow 
+// @flow
 import * as React from 'react';
+import {useEffect, useState} from 'react';
 import MUIDataTable, {MUIDataTableColumn} from "mui-datatables";
-import {useEffect, useState} from "react";
-import {httpVideo} from "../../util/http";
 import {Chip} from "@material-ui/core";
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
