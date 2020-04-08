@@ -6,6 +6,7 @@ import {httpVideo} from "../../util/http";
 import {Chip} from "@material-ui/core";
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
+import categoryHttp from "../../util/http/category-http";
 
 const columsDefinition: MUIDataTableColumn[] = [
     {
@@ -47,9 +48,10 @@ const Table = (props: Props) => {
     const [data, setData] = useState([]);
 
     useEffect(() => {
-       httpVideo.get('categories').then(
-           response => setData(response.data.data)
-       );
+        categoryHttp.list().then(({data}) => setData(data.data));
+       // httpVideo.get('categories').then(
+       //     response => setData(response.data.data)
+       // );
     }, []);
     return (
         <MUIDataTable
