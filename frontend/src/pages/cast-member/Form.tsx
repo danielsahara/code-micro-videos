@@ -1,8 +1,19 @@
 import * as React from 'react';
-import {Box, Button, ButtonProps, Checkbox, TextField, Theme} from "@material-ui/core";
+import {
+    Box,
+    Button,
+    ButtonProps,
+    Checkbox,
+    FormControl, FormControlLabel,
+    FormLabel, Radio,
+    RadioGroup,
+    TextField,
+    Theme
+} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 import useForm from "react-hook-form";
-import categoryHttp from "../../util/http/category-http";
+import castMemberHttp from "../../util/http/cast-member-http";
+import {useEffect} from "react";
 
 const useStyles = makeStyles((theme: Theme) => {
     return {
@@ -19,17 +30,16 @@ export const Form = () => {
     const buttonProps: ButtonProps = {
         className: classes.submit,
         variant: "outlined",
-        // size: "medium"
     };
 
-    const {register, handleSubmit, getValues} = useForm({
-        defaultValues:{
-            is_Active: true
-        }
-    });
+    const {register, handleSubmit, getValues, setValue} = useForm();
+
+    useEffect(() => {
+        register({name: "type"})
+    }, [register]);
 
     function onSubmit(formData, event) {
-        categoryHttp
+        castMemberHttp
             .create(formData)
             .then((response) => console.log(response));
     }
@@ -37,28 +47,26 @@ export const Form = () => {
     return(
         <form onSubmit={handleSubmit(onSubmit)}>
             <TextField
-                inputRef={register}
                 name="name"
                 label="Nome"
                 fullWidth
                 variant={"outlined"}
-            />
-            <TextField
                 inputRef={register}
-                name="description"
-                label="Descrição"
-                multiline
-                rows="4"
-                fullWidth
-                variant={"outlined"}
-                margin={"normal"}
             />
-            <Checkbox
-                inputRef={register}
-                name="is_active"
-                defaultChecked
-            />
-            Ativo?
+
+            <FormControl margin={"normal"}>
+                <FormLabel component="legend">Tipos</FormLabel>
+                <RadioGroup
+                    name={"type"}
+                    onChange={(e) => {
+                        setValue('type', parseInt(e.target.value));
+                    }}
+                >
+                    <FormControlLabel value="1" control={<Radio />} label="Diretor" />
+                    <FormControlLabel value="2" control={<Radio />} label="Ator" />
+                </RadioGroup>
+            </FormControl>
+
             <Box dir={"rtl"}>
                 <Button {...buttonProps} onClick={() => onSubmit(getValues(), null)}>Salvar</Button>
                 <Button {...buttonProps} type={"submit"}>Salvar e continuar editando</Button>
