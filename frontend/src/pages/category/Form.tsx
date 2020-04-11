@@ -54,8 +54,9 @@ export const Form = () => {
                 margin={"normal"}
             />
             <Checkbox
-                inputRef={register}
                 name="is_active"
+                color={"primary"}
+                inputRef={register}
                 defaultChecked
             />
             Ativo?

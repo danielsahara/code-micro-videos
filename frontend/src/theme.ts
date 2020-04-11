@@ -9,6 +9,22 @@ const theme = createMuiTheme({
         secondary:{
             main: '#4db5ab',
             contrastText: '#fff'
+        },
+        background:{
+            default: '#fafafa'
+        }
+    },
+    overrides:{
+        // MuiFormLabel: {
+        //     root:{
+        //         fontSize: '1.2rem',
+        //         fontWeight: 500
+        //     }
+        // }
+        MuiInputBase:{
+            input:{
+
+            }
         }
     }
 });
