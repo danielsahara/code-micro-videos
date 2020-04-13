@@ -1,4 +1,5 @@
 import {createMuiTheme} from "@material-ui/core";
+import MUIDataTable from "mui-datatables";
 
 const theme = createMuiTheme({
     palette:{
@@ -15,15 +16,9 @@ const theme = createMuiTheme({
         }
     },
     overrides:{
-        // MuiFormLabel: {
-        //     root:{
-        //         fontSize: '1.2rem',
-        //         fontWeight: 500
-        //     }
-        // }
-        MuiInputBase:{
-            input:{
-
+        MUIDataTable:{
+            paper:{
+                boxShadow: "none",
             }
         }
     }
