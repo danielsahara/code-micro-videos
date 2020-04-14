@@ -1,4 +1,3 @@
-// @flow
 import * as React from 'react';
 import {useEffect, useState} from 'react';
 import MUIDataTable, {MUIDataTableColumn} from "mui-datatables";
@@ -7,6 +6,7 @@ import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import categoryHttp from "../../util/http/category-http";
 import {Category} from "@material-ui/icons";
+import {BadgeNo, BadgeYes} from "../../components/Badge";
 
 const columsDefinition: MUIDataTableColumn[] = [
     {
@@ -18,7 +18,7 @@ const columsDefinition: MUIDataTableColumn[] = [
         label: 'Ativo',
         options: {
             customBodyRender(value, tableMeta, update) {
-                return value ? <Chip label="Sim" color="primary"/> : <Chip label="Não" color="secondary" />;
+                return value ? <BadgeYes/> : <BadgeNo/>
             }
         }
     },
