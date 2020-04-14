@@ -10,7 +10,7 @@ import {Table} from "./Table";
 const PageList = () => {
     return (
         <Page title={'Listagem de gêneros'}>
-            <Box dir={'rtl'}>
+            <Box dir={'rtl'} paddingBottom={2}>
                 <Fab
                     title="Adicionar Gênero"
                     size="small"
