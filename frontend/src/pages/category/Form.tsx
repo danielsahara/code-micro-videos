@@ -1,11 +1,12 @@
 import * as React from 'react';
-import {Box, Button, ButtonProps, Checkbox, TextField, Theme} from "@material-ui/core";
+import {Box, Button, ButtonProps, Checkbox, FormControlLabel, TextField, Theme} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 import useForm from "react-hook-form";
 import categoryHttp from "../../util/http/category-http";
 import * as yup from '../../util/vendor/yup';
 import {useEffect, useState} from "react";
 import {useParams} from 'react-router';
+import {watch} from "fs";
 
 
 const useStyles = makeStyles((theme: Theme) => {
@@ -33,7 +34,7 @@ export const Form = () => {
         variant: "contained",
     };
 
-    const {register, handleSubmit, getValues, errors, reset} = useForm({
+    const {register, handleSubmit, getValues, errors, reset, watch, setValue} = useForm({
         validationSchema,
         // nativeValidation: true,
         defaultValues:{
@@ -42,6 +43,10 @@ export const Form = () => {
     });
     const {id} = useParams();
     const[category, setCategory] = useState<{id: string} | null>(null);
+
+    useEffect(() => {
+        register({name: "is_active"})
+    }, [register]);
 
     useEffect(() => {
         if(!id){
@@ -87,13 +92,20 @@ export const Form = () => {
                 margin={"normal"}
                 InputLabelProps={{shrink: true}}
             />
-            <Checkbox
-                name="is_active"
-                color={"primary"}
-                inputRef={register}
-                defaultChecked
+            <FormControlLabel
+                control={
+                    <Checkbox
+                        name="is_active"
+                        color={"primary"}
+                        onChange={
+                            () => setValue('is_active', !getValues()['is_active'])
+                        }
+                        checked={watch('is_active')}
+                    />
+                }
+                label={'Ativo?'}
+                labelPlacement={'end'}
             />
-            Ativo?
             <Box dir={"rtl"}>
                 <Button color={"primary"} {...buttonProps} onClick={() => onSubmit(getValues(), null)}>Salvar</Button>
                 <Button {...buttonProps} type={"submit"}>Salvar e continuar editando</Button>
