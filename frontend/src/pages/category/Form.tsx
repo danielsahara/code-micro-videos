@@ -4,6 +4,9 @@ import {makeStyles} from "@material-ui/core/styles";
 import useForm from "react-hook-form";
 import categoryHttp from "../../util/http/category-http";
 import * as yup from '../../util/vendor/yup';
+import {useEffect, useState} from "react";
+import {useParams} from 'react-router';
+
 
 const useStyles = makeStyles((theme: Theme) => {
     return {
@@ -30,18 +33,35 @@ export const Form = () => {
         variant: "contained",
     };
 
-    const {register, handleSubmit, getValues, errors} = useForm({
+    const {register, handleSubmit, getValues, errors, reset} = useForm({
         validationSchema,
         // nativeValidation: true,
         defaultValues:{
             is_Active: true
         }
     });
+    const {id} = useParams();
+    const[category, setCategory] = useState<{id: string} | null>(null);
+
+    useEffect(() => {
+        if(!id){
+            return;
+        }
+        categoryHttp
+            .get(id)
+            .then(({data}) =>
+            {
+                setCategory(data.data)
+                reset(data.data)
+            })
+    }, []);
 
     function onSubmit(formData, event) {
-        categoryHttp
-            .create(formData)
-            .then((response) => console.log(response));
+        const http = !category
+                ? categoryHttp.create(formData)
+                : categoryHttp.update(category.id, formData);
+
+        http.then((response) => console.log(response));
     }
 
     return(
@@ -54,6 +74,7 @@ export const Form = () => {
                 inputRef={register}
                 error={errors.name !== undefined}
                 helperText={errors.name && errors.name.message}
+                InputLabelProps={{shrink: true}}
             />
             <TextField
                 inputRef={register}
@@ -64,6 +85,7 @@ export const Form = () => {
                 fullWidth
                 variant={"outlined"}
                 margin={"normal"}
+                InputLabelProps={{shrink: true}}
             />
             <Checkbox
                 name="is_active"
