@@ -5,7 +5,7 @@ import useForm from "react-hook-form";
 import categoryHttp from "../../util/http/category-http";
 import * as yup from '../../util/vendor/yup';
 import {useEffect, useState} from "react";
-import {useParams} from 'react-router';
+import {useParams, useHistory} from 'react-router';
 import {watch} from "fs";
 
 
@@ -35,6 +35,7 @@ export const Form = () => {
             is_Active: true
         }
     });
+    const history = useHistory();
     const {id} = useParams();
     const[category, setCategory] = useState<{id: string} | null>(null);
     const[loading, setLoading] = useState<boolean>(false);
@@ -72,7 +73,14 @@ export const Form = () => {
                 : categoryHttp.update(category.id, formData);
 
         http
-            .then((response) => console.log(response))
+            .then(({data}) => {
+                setTimeout(() => {
+                    event ? (
+                            id ? history.replace(`/categories/${data.data.id}/edit`) : history.push(`/categories/${data.data.id}/edit`)
+                        )
+                        : history.push('/categories');
+                })
+            })
             .finally(() => setLoading(false));
     }
 
