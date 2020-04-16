@@ -28,12 +28,6 @@ export const Form = () => {
 
     const classes = useStyles();
 
-    const buttonProps: ButtonProps = {
-        className: classes.submit,
-        color: 'secondary',
-        variant: "contained",
-    };
-
     const {register, handleSubmit, getValues, errors, reset, watch, setValue} = useForm({
         validationSchema,
         // nativeValidation: true,
@@ -43,6 +37,14 @@ export const Form = () => {
     });
     const {id} = useParams();
     const[category, setCategory] = useState<{id: string} | null>(null);
+    const[loading, setLoading] = useState<boolean>(false);
+
+    const buttonProps: ButtonProps = {
+        className: classes.submit,
+        color: 'secondary',
+        variant: "contained",
+        disabled: loading
+    };
 
     useEffect(() => {
         register({name: "is_active"})
@@ -52,6 +54,7 @@ export const Form = () => {
         if(!id){
             return;
         }
+        setLoading(true);
         categoryHttp
             .get(id)
             .then(({data}) =>
@@ -59,14 +62,18 @@ export const Form = () => {
                 setCategory(data.data)
                 reset(data.data)
             })
+            .finally(() => setLoading(false))
     }, []);
 
     function onSubmit(formData, event) {
+        setLoading(true);
         const http = !category
                 ? categoryHttp.create(formData)
                 : categoryHttp.update(category.id, formData);
 
-        http.then((response) => console.log(response));
+        http
+            .then((response) => console.log(response))
+            .finally(() => setLoading(false));
     }
 
     return(
@@ -77,12 +84,14 @@ export const Form = () => {
                 fullWidth
                 variant={"outlined"}
                 inputRef={register}
+                disabled={loading}
                 error={errors.name !== undefined}
                 helperText={errors.name && errors.name.message}
                 InputLabelProps={{shrink: true}}
             />
             <TextField
                 inputRef={register}
+                disabled={loading}
                 name="description"
                 label="Descrição"
                 multiline
@@ -93,6 +102,7 @@ export const Form = () => {
                 InputLabelProps={{shrink: true}}
             />
             <FormControlLabel
+                disabled={loading}
                 control={
                     <Checkbox
                         name="is_active"
@@ -101,6 +111,7 @@ export const Form = () => {
                             () => setValue('is_active', !getValues()['is_active'])
                         }
                         checked={watch('is_active')}
+
                     />
                 }
                 label={'Ativo?'}
