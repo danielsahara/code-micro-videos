@@ -33,7 +33,7 @@ export const Form = () => {
         validationSchema,
         // nativeValidation: true,
         defaultValues:{
-            is_Active: true
+            is_active: true
         }
     });
 
@@ -58,38 +58,70 @@ export const Form = () => {
         if(!id){
             return;
         }
-        setLoading(true);
-        categoryHttp
-            .get(id)
-            .then(({data}) =>
-            {
-                setCategory(data.data)
-                reset(data.data)
-            })
-            .finally(() => setLoading(false))
+
+        async function getCategory() {
+            setLoading(true);
+            try {
+                const {data} = await categoryHttp.get(id);
+                setCategory(data.data);
+                reset(data.data);
+            } catch (error) {
+                console.error(error);
+                snackbar.enqueueSnackbar('Não foi possivel carregar as informaçoes', {variant: 'error'})
+            } finally {
+                setLoading(false);
+            }
+        }
+        getCategory();
+    //     setLoading(true);
+    //     categoryHttp
+    //         .get(id)
+    //         .then(({data}) =>
+    //         {
+    //             setCategory(data.data)
+    //             reset(data.data)
+    //         })
+    //         .finally(() => setLoading(false))
+    // }, []);
     }, []);
 
-    function onSubmit(formData, event) {
+     async function onSubmit(formData, event) {
         setLoading(true);
-        const http = !category
+        try {
+            const http = !category
                 ? categoryHttp.create(formData)
                 : categoryHttp.update(category.id, formData);
-
-        http
-            .then(({data}) => {
-                snackbar.enqueueSnackbar('Categoria salva com sucesso', {variant: 'success'})
-                setTimeout(() => {
-                    event ? (
-                            id ? history.replace(`/categories/${data.data.id}/edit`) : history.push(`/categories/${data.data.id}/edit`)
-                        )
-                        : history.push('/categories');
-                })
-            })
-            .catch((error) =>{
-                console.log(error);
-                snackbar.enqueueSnackbar('Nao foi possivel salvar a categoria', {variant: 'error'})
-            })
-            .finally(() => setLoading(false));
+            const {data} = await http;
+            snackbar.enqueueSnackbar('Categoria salva com sucesso', {variant: 'success'});
+            setTimeout(() => {
+                event ? (
+                        id ? history.replace(`/categories/${data.data.id}/edit`) : history.push(`/categories/${data.data.id}/edit`)
+                    )
+                    : history.push('/categories');
+            });
+        }
+        catch (error) {
+            console.error(error);
+            snackbar.enqueueSnackbar('Não foi possivel salvar a categoria', {variant: 'error'})
+        }
+        finally {
+            setLoading(false);
+        }
+        // http
+        //     .then(({data}) => {
+        //         snackbar.enqueueSnackbar('Categoria salva com sucesso', {variant: 'success'})
+        //         setTimeout(() => {
+        //             event ? (
+        //                     id ? history.replace(`/categories/${data.data.id}/edit`) : history.push(`/categories/${data.data.id}/edit`)
+        //                 )
+        //                 : history.push('/categories');
+        //         })
+        //     })
+        //     .catch((error) =>{
+        //         console.log(error);
+        //         snackbar.enqueueSnackbar('Nao foi possivel salvar a categoria', {variant: 'error'})
+        //     })
+        //     .finally(() => setLoading(false));
     }
 
     return(
