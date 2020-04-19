@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Box, Button, ButtonProps, Checkbox, FormControlLabel, TextField, Theme} from "@material-ui/core";
+import {Box, Button, ButtonProps, Checkbox, FormControlLabel, Grid, TextField, Theme} from "@material-ui/core";
 import useForm from "react-hook-form";
 import categoryHttp from "../../util/http/category-http";
 import * as yup from '../../util/vendor/yup';
@@ -8,6 +8,7 @@ import {useParams, useHistory} from 'react-router';
 import {useSnackbar} from 'notistack';
 import {Category} from "../../util/models";
 import SubmitActions from "../../components/SubmitActions";
+import {DefaultForm} from "../../components/DefaultForm";
 
 const validationSchema = yup.object().shape({
     name: yup.string()
@@ -107,7 +108,7 @@ export const Form = () => {
     }
 
     return(
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <DefaultForm GridItemProps={{xs: 12, md: 6}} onSubmit={handleSubmit(onSubmit)} >
             <TextField
                 name="name"
                 label="Nome"
@@ -154,6 +155,6 @@ export const Form = () => {
                     })
                 }
             />
-        </form>
+        </DefaultForm>
     );
 };
