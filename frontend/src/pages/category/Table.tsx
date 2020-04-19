@@ -7,6 +7,7 @@ import parseISO from "date-fns/parseISO";
 import categoryHttp from "../../util/http/category-http";
 import {Category} from "@material-ui/icons";
 import {BadgeNo, BadgeYes} from "../../components/Badge";
+import {ListResponse} from "../../util/models";
 
 const columsDefinition: MUIDataTableColumn[] = [
     {
@@ -54,7 +55,7 @@ const Table = (props: Props) => {
     useEffect(() => {
         let isSubscribed = true;
         (async () => {
-            const {data} = await categoryHttp.list();
+            const {data} = await categoryHttp.list<ListResponse<Category>>();
             if(isSubscribed){
                 setData(data.data);
             }

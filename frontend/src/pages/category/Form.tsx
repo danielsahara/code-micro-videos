@@ -8,6 +8,7 @@ import {useEffect, useState} from "react";
 import {useParams, useHistory} from 'react-router';
 import {watch} from "fs";
 import {useSnackbar} from 'notistack';
+import {Category} from "../../util/models";
 
 
 const useStyles = makeStyles((theme: Theme) => {
@@ -40,7 +41,7 @@ export const Form = () => {
     const snackbar = useSnackbar();
     const history = useHistory();
     const {id} = useParams();
-    const[category, setCategory] = useState<{id: string} | null>(null);
+    const[category, setCategory] = useState<Category | null>(null);
     const[loading, setLoading] = useState<boolean>(false);
 
     const buttonProps: ButtonProps = {

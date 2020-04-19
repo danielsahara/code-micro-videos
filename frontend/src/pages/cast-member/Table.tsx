@@ -4,6 +4,7 @@ import MUIDataTable, {MUIDataTableColumn} from "mui-datatables";
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import {httpVideo} from "../../util/http";
+import {CastMember} from "../../util/models";
 
 const CastMemberTypeMap = {
     1: 'Diretor',
@@ -40,7 +41,7 @@ type Props = {
 };
 export const Table = (props: Props) => {
     
-    const [data, setData] = useState([]);
+    const [data, setData] = useState<CastMember[]>([]);
     
     useEffect(() => {
        httpVideo.get('cast_members').then(

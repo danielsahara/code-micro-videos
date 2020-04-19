@@ -18,6 +18,7 @@ import useForm from "react-hook-form";
 import * as yup from "../../util/vendor/yup";
 import {useHistory, useParams} from "react-router";
 import {useSnackbar} from 'notistack';
+import {Category, Genre} from "../../util/models";
 
 const useStyles = makeStyles((theme: Theme) => {
     return {
@@ -46,7 +47,8 @@ export const Form = () => {
     const snackbar = useSnackbar();
     const history = useHistory();
     const {id} = useParams();
-    const [genre, setGenre] = useState<{id: string} | null>(null);
+    const [genre, setGenre] = useState<Genre | null>(null);
+    const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
 
     const buttonProps: ButtonProps = {
@@ -55,7 +57,6 @@ export const Form = () => {
         variant: "contained",
         disabled: loading,
     };
-    const [categories, setCategories] = useState<any[]>([]);
 
     const category = getValues()['categories_id'];
 
