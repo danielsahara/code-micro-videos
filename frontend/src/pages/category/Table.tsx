@@ -8,6 +8,7 @@ import categoryHttp from "../../util/http/category-http";
 import {Category} from "@material-ui/icons";
 import {BadgeNo, BadgeYes} from "../../components/Badge";
 import {ListResponse} from "../../util/models";
+import DefaultTable from '../../components/Table'
 
 const columsDefinition: MUIDataTableColumn[] = [
     {
@@ -65,8 +66,8 @@ const Table = (props: Props) => {
         }
     }, []);
     return (
-        <MUIDataTable
-            title="Listagem de categorias"
+        <DefaultTable
+            title=""
             columns={columsDefinition}
             data={data}
         />
