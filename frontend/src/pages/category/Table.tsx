@@ -8,12 +8,21 @@ import categoryHttp from "../../util/http/category-http";
 import {Category} from "@material-ui/icons";
 import {BadgeNo, BadgeYes} from "../../components/Badge";
 import {ListResponse} from "../../util/models";
-import DefaultTable from '../../components/Table'
+import DefaultTable, {TableColumn} from '../../components/Table'
 
-const columsDefinition: MUIDataTableColumn[] = [
+const columsDefinition: TableColumn[] = [
+    {
+        name: 'id',
+        label: 'ID',
+        width: '30%',
+        options:{
+            sort: false
+        }
+    },
     {
         name: 'name',
         label: 'Nome',
+        width: '43%',
     },
     {
         name: 'is_active',
@@ -22,16 +31,23 @@ const columsDefinition: MUIDataTableColumn[] = [
             customBodyRender(value, tableMeta, update) {
                 return value ? <BadgeYes/> : <BadgeNo/>
             }
-        }
+        },
+        width: '4%',
     },
     {
         name: 'created_at',
         label: 'Criado em',
+        width: '10%',
         options: {
             customBodyRender(value, tableMeta, update) {
                 return <span>{format(parseISO(value), 'dd/MM/yyyy')}</span>;
             }
         }
+    },
+    {
+        name: 'actions',
+        label: 'Ações',
+        width: '13%',
     },
 ];
 
