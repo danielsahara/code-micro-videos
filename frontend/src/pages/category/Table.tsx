@@ -99,6 +99,7 @@ const Table = (props: Props) => {
             columns={columsDefinition}
             data={data}
             loading={loading}
+            options={{responsive: "scrollMaxHeight"}}
         />
     );
 };
