@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import MUIDataTable, {MUIDataTableColumn} from "mui-datatables";
 import {Chip} from "@material-ui/core";
 import format from "date-fns/format";
@@ -10,6 +10,10 @@ import {BadgeNo, BadgeYes} from "../../components/Badge";
 import {ListResponse} from "../../util/models";
 import DefaultTable, {TableColumn} from '../../components/Table'
 import {useSnackbar} from "notistack";
+
+interface SearchState {
+    search: string,
+}
 
 const columsDefinition: TableColumn[] = [
     {
@@ -68,38 +72,53 @@ type Props = {
 };
 const Table = (props: Props) => {
     const snackbar = useSnackbar();
+    const subscribed = useRef(true);//current: true
     const [data, setData] = useState<Category[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [searchState, setSearchState] = useState<SearchState>({search: ''});
 
     useEffect(() => {
-        let isSubscribed = true;
-        (async () => {
-            setLoading(true);
-            try {
-                const {data} = await categoryHttp.list<ListResponse<Category>>();
-                if(isSubscribed){
-                    setData(data.data);
-                }
-            }
-            catch (error) {
-                console.error(error);
-                snackbar.enqueueSnackbar('Não foi possivel carregas as informaçoes', {variant: 'error'})
-            }
-            finally {
-                setLoading(false);
-            }
-        })();
+        subscribed.current = true;
+
+        getData();
+
         return () => {
-            isSubscribed = false;
+            subscribed.current = false;
         }
-    }, []);
+    }, [searchState]);
+
+    async function getData() {
+        setLoading(true);
+        try {
+            const {data} = await categoryHttp.list<ListResponse<Category>>({
+                queryParams: {
+                    search: searchState.search
+                }
+            });
+            if(subscribed.current){
+                setData(data.data);
+            }
+        }
+        catch (error) {
+            console.error(error);
+            snackbar.enqueueSnackbar('Não foi possivel carregas as informaçoes', {variant: 'error'})
+        }
+        finally {
+            setLoading(false);
+        }
+    }
+    
     return (
         <DefaultTable
             title=""
             columns={columsDefinition}
             data={data}
             loading={loading}
-            options={{responsive: "scrollMaxHeight"}}
+            options={{
+                responsive: "scrollMaxHeight",
+                searchText: searchState.search,
+                onSearchChange: (value) => setSearchState({search: value})
+            }}
         />
     );
 };
