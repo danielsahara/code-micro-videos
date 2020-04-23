@@ -8,6 +8,7 @@ import {BadgeNo, BadgeYes} from "../../components/Badge";
 import {ListResponse} from "../../util/models";
 import DefaultTable, {TableColumn} from '../../components/Table'
 import {useSnackbar} from "notistack";
+import {FilterResetButton} from "../../components/Table/FilterResetButton";
 
 interface Pagination{
     page: number;
@@ -82,11 +83,7 @@ type Props = {
     
 };
 const Table = (props: Props) => {
-    const snackbar = useSnackbar();
-    const subscribed = useRef(true);//current: true
-    const [data, setData] = useState<Category[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [searchState, setSearchState] = useState<SearchState>({
+    const initialState = {
         search: '',
         pagination:{
             page: 1,
@@ -97,7 +94,13 @@ const Table = (props: Props) => {
             sort: null,
             dir: null,
         }
-    });
+    };
+
+    const snackbar = useSnackbar();
+    const subscribed = useRef(true);//current: true
+    const [data, setData] = useState<Category[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [searchState, setSearchState] = useState<SearchState>(initialState);
 
     const columns = columsDefinition.map(column => {
         return column.name === searchState.order.sort ?
@@ -174,9 +177,18 @@ const Table = (props: Props) => {
                 page: searchState.pagination.page - 1,
                 rowsPerPage: searchState.pagination.per_page,
                 count: searchState.pagination.total,
+                customToolbar: () => (
+                    <FilterResetButton handleClick={() => {
+                        setSearchState(initialState);
+                    }}/>
+                ),
                 onSearchChange: (value) => setSearchState((prevState => ({
                     ...prevState,
-                    search: value
+                    search: value,
+                        pagination:{
+                            ...prevState.pagination,
+                            page: 1
+                        }
                 }
                 ))),
                 onChangePage: (page) => setSearchState((prevState => ({
