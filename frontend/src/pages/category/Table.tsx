@@ -17,9 +17,15 @@ interface Pagination{
     per_page: number;
 }
 
+interface Order{
+    sort: string | null;
+    dir: string | null;
+}
+
 interface SearchState {
     search: string,
     pagination: Pagination;
+    order: Order;
 }
 
 const columsDefinition: TableColumn[] = [
@@ -88,7 +94,22 @@ const Table = (props: Props) => {
             page: 1,
             total: 0,
             per_page: 10,
+        },
+        order: {
+            sort: null,
+            dir: null,
         }
+    });
+
+    const columns = columsDefinition.map(column => {
+        return column.name === searchState.order.sort ?
+        {
+        ...column,
+            options: {
+        ...column.options,
+                sortDirection: searchState.order.dir as any
+        }
+        } : column
     });
 
     useEffect(() => {
@@ -103,6 +124,7 @@ const Table = (props: Props) => {
         searchState.search,
         searchState.pagination.page,
         searchState.pagination.per_page,
+        searchState.order,
 
     ]);
 
@@ -114,6 +136,8 @@ const Table = (props: Props) => {
                     search: searchState.search,
                     page: searchState.pagination.page,
                     per_page: searchState.pagination.per_page,
+                    sort: searchState.order.sort,
+                    dir: searchState.order.dir,
                 }
             });
             if(subscribed.current){
@@ -139,7 +163,7 @@ const Table = (props: Props) => {
     return (
         <DefaultTable
             title=""
-            columns={columsDefinition}
+            columns={columns}
             data={data}
             loading={loading}
             options={{
@@ -167,6 +191,14 @@ const Table = (props: Props) => {
                         pagination: {
                             ...prevState.pagination,
                             per_page: perPage,
+                        }
+                    }
+                ))),
+                onColumnSortChange: (changedColumn: string, direction: string) => setSearchState((prevState => ({
+                        ...prevState,
+                        order: {
+                            sort: changedColumn,
+                            dir: direction.includes('desc') ? 'desc' : 'asc',
                         }
                     }
                 ))),
