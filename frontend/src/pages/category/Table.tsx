@@ -1,7 +1,5 @@
 import * as React from 'react';
 import {useEffect, useRef, useState} from 'react';
-import MUIDataTable, {MUIDataTableColumn} from "mui-datatables";
-import {Chip} from "@material-ui/core";
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import categoryHttp from "../../util/http/category-http";
@@ -153,6 +151,9 @@ const Table = (props: Props) => {
         }
         catch (error) {
             console.error(error);
+            if(categoryHttp.isCancelledRequest(error)){
+                return;
+            }
             snackbar.enqueueSnackbar('Não foi possivel carregas as informaçoes', {variant: 'error'})
         }
         finally {
