@@ -134,7 +134,7 @@ const Table = (props: Props) => {
         try {
             const {data} = await categoryHttp.list<ListResponse<Category>>({
                 queryParams: {
-                    search: searchState.search,
+                    search: cleanSearchText(searchState.search),
                     page: searchState.pagination.page,
                     per_page: searchState.pagination.per_page,
                     sort: searchState.order.sort,
@@ -163,6 +163,15 @@ const Table = (props: Props) => {
             setLoading(false);
         }
     }
+
+    function cleanSearchText(text){
+        let newText = text;
+
+        if (text && text.value !== undefined){
+            newText = text.value;
+        }
+        return newText;
+    }
     
     return (
         <DefaultTable
@@ -170,6 +179,7 @@ const Table = (props: Props) => {
             columns={columns}
             data={data}
             loading={loading}
+            debouncedSearchTime={500}
             options={{
                 serverSide: true,
                 responsive: "scrollMaxHeight",
@@ -179,7 +189,13 @@ const Table = (props: Props) => {
                 count: searchState.pagination.total,
                 customToolbar: () => (
                     <FilterResetButton handleClick={() => {
-                        setSearchState(initialState);
+                        setSearchState({
+                            ...initialState,
+                            search:{
+                                value: initialState.search,
+                                updated: true
+                            } as any
+                        });
                     }}/>
                 ),
                 onSearchChange: (value) => setSearchState((prevState => ({

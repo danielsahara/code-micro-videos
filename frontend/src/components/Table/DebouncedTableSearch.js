@@ -34,7 +34,7 @@ class DebouncedTableSearch extends React.Component {
         this.state = {
             text: props.searchText
         }
-        this.dispatchOnSearch = debounce(this.dispatchOnSearch.bind(this), 500);
+        this.dispatchOnSearch = debounce(this.dispatchOnSearch.bind(this), this.props.debounceTime);
     }
 
     handleTextChange = event => {
