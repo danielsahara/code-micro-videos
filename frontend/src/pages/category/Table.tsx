@@ -10,6 +10,7 @@ import DefaultTable, {TableColumn} from '../../components/Table'
 import {useSnackbar} from "notistack";
 import {FilterResetButton} from "../../components/Table/FilterResetButton";
 import reducer, {INITIAL_STATE, Creators} from "../../store/filter";
+import useFilter from "../../hooks/useFilter";
 
 const columsDefinition: TableColumn[] = [
     {
@@ -73,8 +74,11 @@ const Table = (props: Props) => {
     const subscribed = useRef(true);//current: true
     const [data, setData] = useState<Category[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    const [filterState, dispatch] = useReducer(reducer, INITIAL_STATE);
-    const [totalRecords, setTotalRecords] = useState<number>(0);
+    const {
+        filterState,
+        dispatch,
+        totalRecords,
+        setTotalRecords} = useFilter();
     // const [filterState, setSearchState] = useState<SearchState>(initialState);
 
     const columns = columsDefinition.map(column => {
