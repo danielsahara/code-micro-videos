@@ -68,6 +68,9 @@ type Props = {
     
 };
 
+const debounceTime = 300;
+const debouncedSearchTime = 300;
+
 const Table = (props: Props) => {
 
     const snackbar = useSnackbar();
@@ -78,12 +81,13 @@ const Table = (props: Props) => {
         columns,
         filterManager,
         filterState,
+        debounceFilterState,
         dispatch,
         totalRecords,
         setTotalRecords
     } = useFilter({
         columns: columsDefinition,
-        debounceTime: 500,
+        debounceTime: debounceTime,
         rowsPerPage: 10,
         rowsPerPageOptions: [ 10, 25,50]
     });
@@ -98,10 +102,10 @@ const Table = (props: Props) => {
             subscribed.current = false;
         }
     }, [
-        filterState.search,
-        filterState.pagination.page,
-        filterState.pagination.per_page,
-        filterState.order,
+        filterManager.cleanSearchText(debounceFilterState.search),
+        debounceFilterState.pagination.page,
+        debounceFilterState.pagination.per_page,
+        debounceFilterState.order,
 
     ]);
 
@@ -110,7 +114,7 @@ const Table = (props: Props) => {
         try {
             const {data} = await categoryHttp.list<ListResponse<Category>>({
                 queryParams: {
-                    search: cleanSearchText(filterState.search),
+                    search: filterManager.cleanSearchText(filterState.search),
                     page: filterState.pagination.page,
                     per_page: filterState.pagination.per_page,
                     sort: filterState.order.sort,
@@ -141,14 +145,6 @@ const Table = (props: Props) => {
         }
     }
 
-    function cleanSearchText(text){
-        let newText = text;
-
-        if (text && text.value !== undefined){
-            newText = text.value;
-        }
-        return newText;
-    }
     
     return (
         <DefaultTable
@@ -156,7 +152,7 @@ const Table = (props: Props) => {
             columns={columns}
             data={data}
             loading={loading}
-            debouncedSearchTime={500}
+            debouncedSearchTime={debouncedSearchTime}
             options={{
                 serverSide: true,
                 responsive: "scrollMaxHeight",

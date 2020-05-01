@@ -2,6 +2,7 @@ import {Dispatch, Reducer, useReducer, useState} from "react";
 import reducer, {Creators, INITIAL_STATE} from "../store/filter";
 import {Actions as FilterActions, State as FilterState} from "../store/filter/types";
 import {MUIDataTableColumn} from "mui-datatables";
+import {useDebounce} from 'use-debounce';
 
 interface FilterManagerOptions {
     columns: MUIDataTableColumn[];
@@ -14,6 +15,7 @@ export default function useFilter(options: FilterManagerOptions) {
     const filterManager = new FilterManager(options);
 
     const [filterState, dispatch] = useReducer<Reducer<FilterState, FilterActions>>(reducer, INITIAL_STATE);
+    const [debounceFilterState] = useDebounce(filterState, options.debounceTime);
     const [totalRecords, setTotalRecords] = useState<number>(0);
     filterManager.state = filterState;
     filterManager.dispatch = dispatch;
@@ -23,6 +25,7 @@ export default function useFilter(options: FilterManagerOptions) {
         columns: filterManager.columns,
         filterManager,
         filterState,
+        debounceFilterState,
         dispatch,
         totalRecords,
         setTotalRecords
@@ -35,14 +38,12 @@ export class FilterManager{
     columns: MUIDataTableColumn[];
     rowsPerPage: number;
     rowsPerPageOptions: number[];
-    debounceTime: number;
 
     constructor(options: FilterManagerOptions) {
         const {columns, rowsPerPage, rowsPerPageOptions, debounceTime} = options
         this.columns = columns;
         this.rowsPerPage = rowsPerPage;
         this.rowsPerPageOptions = rowsPerPageOptions;
-        this.debounceTime = debounceTime;
     }
 
     changeSearch(value){
@@ -74,5 +75,14 @@ export class FilterManager{
                     }
                 } : column
         });
+    }
+
+    cleanSearchText(text){
+        let newText = text;
+
+        if (text && text.value !== undefined){
+            newText = text.value;
+        }
+        return newText;
     }
 }
