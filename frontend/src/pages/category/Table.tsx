@@ -75,22 +75,19 @@ const Table = (props: Props) => {
     const [data, setData] = useState<Category[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const {
+        columns,
+        filterManager,
         filterState,
         dispatch,
         totalRecords,
-        setTotalRecords} = useFilter();
-    // const [filterState, setSearchState] = useState<SearchState>(initialState);
-
-    const columns = columsDefinition.map(column => {
-        return column.name === filterState.order.sort ?
-        {
-        ...column,
-            options: {
-        ...column.options,
-                sortDirection: filterState.order.dir as any
-        }
-        } : column
+        setTotalRecords
+    } = useFilter({
+        columns: columsDefinition,
+        debounceTime: 500,
+        rowsPerPage: 10,
+        rowsPerPageOptions: [ 10, 25,50]
     });
+    // const [filterState, setSearchState] = useState<SearchState>(initialState);
 
     useEffect(() => {
         subscribed.current = true;
@@ -172,16 +169,11 @@ const Table = (props: Props) => {
                         handleClick={() => dispatch(Creators.setReset())}
                     />
                 ),
-                onSearchChange: (value) => dispatch(Creators.setSearch({search: value})),
-                onChangePage: (page) => dispatch(Creators.setPage({page: page + 1})),
-                onChangeRowsPerPage: (perPage) => dispatch(Creators.setPerPage({per_page: perPage})),
+                onSearchChange: (value) => filterManager.changeSearch(value),
+                onChangePage: (page) => filterManager.changePage(page),
+                onChangeRowsPerPage: (perPage) => filterManager.changeRowsPerPage(perPage),
                 onColumnSortChange: (changedColumn: string, direction: string) =>
-                    dispatch(Creators.setOrder(
-                        {
-                            sort: changedColumn,
-                            dir: direction.includes('desc') ? 'desc' : 'asc',
-                    })
-                ),
+                    filterManager.changeColumnSort(changedColumn, direction)
             }}
         />
     );
