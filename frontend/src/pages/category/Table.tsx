@@ -9,7 +9,7 @@ import {ListResponse} from "../../util/models";
 import DefaultTable, {TableColumn} from '../../components/Table'
 import {useSnackbar} from "notistack";
 import {FilterResetButton} from "../../components/Table/FilterResetButton";
-import reducer, {INITIAL_STATE, Creators} from "../../store/search";
+import reducer, {INITIAL_STATE, Creators} from "../../store/filter";
 
 const columsDefinition: TableColumn[] = [
     {
@@ -73,17 +73,17 @@ const Table = (props: Props) => {
     const subscribed = useRef(true);//current: true
     const [data, setData] = useState<Category[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    const [searchState, dispatch] = useReducer(reducer, INITIAL_STATE);
+    const [filterState, dispatch] = useReducer(reducer, INITIAL_STATE);
     const [totalRecords, setTotalRecords] = useState<number>(0);
-    // const [searchState, setSearchState] = useState<SearchState>(initialState);
+    // const [filterState, setSearchState] = useState<SearchState>(initialState);
 
     const columns = columsDefinition.map(column => {
-        return column.name === searchState.order.sort ?
+        return column.name === filterState.order.sort ?
         {
         ...column,
             options: {
         ...column.options,
-                sortDirection: searchState.order.dir as any
+                sortDirection: filterState.order.dir as any
         }
         } : column
     });
@@ -97,10 +97,10 @@ const Table = (props: Props) => {
             subscribed.current = false;
         }
     }, [
-        searchState.search,
-        searchState.pagination.page,
-        searchState.pagination.per_page,
-        searchState.order,
+        filterState.search,
+        filterState.pagination.page,
+        filterState.pagination.per_page,
+        filterState.order,
 
     ]);
 
@@ -109,11 +109,11 @@ const Table = (props: Props) => {
         try {
             const {data} = await categoryHttp.list<ListResponse<Category>>({
                 queryParams: {
-                    search: cleanSearchText(searchState.search),
-                    page: searchState.pagination.page,
-                    per_page: searchState.pagination.per_page,
-                    sort: searchState.order.sort,
-                    dir: searchState.order.dir,
+                    search: cleanSearchText(filterState.search),
+                    page: filterState.pagination.page,
+                    per_page: filterState.pagination.per_page,
+                    sort: filterState.order.sort,
+                    dir: filterState.order.dir,
                 }
             });
             if(subscribed.current){
@@ -159,9 +159,9 @@ const Table = (props: Props) => {
             options={{
                 serverSide: true,
                 responsive: "scrollMaxHeight",
-                searchText: searchState.search as any,
-                page: searchState.pagination.page - 1,
-                rowsPerPage: searchState.pagination.per_page,
+                searchText: filterState.search as any,
+                page: filterState.pagination.page - 1,
+                rowsPerPage: filterState.pagination.per_page,
                 count: totalRecords,
                 customToolbar: () => (
                     <FilterResetButton
