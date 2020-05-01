@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -44,7 +43,7 @@ abstract class BasicCrudController extends Controller
 
     public function store(Request $request){
         $validatedData = $this->validate($request, $this->rulesStore());
-        $obj = $this->queryBuilder()::create($validatedData);
+        $obj = $this->queryBuilder()->create($validatedData);
         $obj->refresh();
         $resource = $this->resource();
 
@@ -55,7 +54,7 @@ abstract class BasicCrudController extends Controller
         $model = $this->model();
         $keyName = (new $model)->getRouteKeyName();
 
-        return $this->queryBuilder()::where($keyName, $id)->firstOrFail();
+        return $this->model()::where($keyName, $id)->firstOrFail();
 
     }
 
