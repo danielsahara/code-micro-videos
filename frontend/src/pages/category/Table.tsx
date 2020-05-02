@@ -95,7 +95,7 @@ const Table = (props: Props) => {
 
     useEffect(() => {
         subscribed.current = true;
-
+        filterManager.pushHistory();
         getData();
 
         return () => {
