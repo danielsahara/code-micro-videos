@@ -70,6 +70,8 @@ type Props = {
 
 const debounceTime = 300;
 const debouncedSearchTime = 300;
+const rowsPerPage = 15;
+const rowsPerPageOptions = [ 15, 25, 50];
 
 const Table = (props: Props) => {
 
@@ -88,10 +90,14 @@ const Table = (props: Props) => {
     } = useFilter({
         columns: columsDefinition,
         debounceTime: debounceTime,
-        rowsPerPage: 10,
-        rowsPerPageOptions: [ 10, 25,50]
+        rowsPerPage,
+        rowsPerPageOptions
     });
     // const [filterState, setSearchState] = useState<SearchState>(initialState);
+
+    useEffect(() => {
+        filterManager.replaceHistory();
+    },[]);
 
     useEffect(() => {
         subscribed.current = true;
@@ -159,6 +165,7 @@ const Table = (props: Props) => {
                 searchText: filterState.search as any,
                 page: filterState.pagination.page - 1,
                 rowsPerPage: filterState.pagination.per_page,
+                rowsPerPageOptions,
                 count: totalRecords,
                 customToolbar: () => (
                     <FilterResetButton
