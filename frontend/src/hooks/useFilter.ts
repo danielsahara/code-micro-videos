@@ -5,6 +5,7 @@ import {MUIDataTableColumn} from "mui-datatables";
 import {useDebounce} from 'use-debounce';
 import {useHistory} from 'react-router';
 import {History} from 'history';
+import {isEqual} from 'lodash';
 
 interface FilterManagerOptions {
     columns: MUIDataTableColumn[];
@@ -104,6 +105,12 @@ export class FilterManager{
                 ...this.state,
                 search: this.cleanSearchText(this.state.search)
             },
+        }
+        const oldState = this.history.location.state;
+        const nextState = this.state;
+
+        if(isEqual(oldState, nextState)){
+            return;
         }
         this.history.push(newLocation);
     }
