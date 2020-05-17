@@ -7,6 +7,7 @@ import {useHistory} from 'react-router';
 import {History} from 'history';
 import {isEqual} from 'lodash';
 import * as yup from "../util/vendor/yup";
+import {MuiDataTableRefComponent} from "../components/Table";
 
 interface FilterManagerOptions {
     columns: MUIDataTableColumn[];
@@ -14,6 +15,8 @@ interface FilterManagerOptions {
     rowsPerPageOptions: number[];
     debounceTime: number;
     history: History;
+    tableRef: React.MutableRefObject<MuiDataTableRefComponent>
+    // extraFilter?: ExtraFilter
 }
 
 interface UseFilterOptions extends Omit<FilterManagerOptions, 'history'>{
@@ -28,6 +31,7 @@ export default function useFilter(options: UseFilterOptions) {
     const [debounceFilterState] = useDebounce(filterState, options.debounceTime);
     const [totalRecords, setTotalRecords] = useState<number>(0);
     filterManager.state = filterState;
+    filterManager.debouncedState = debounceFilterState;
     filterManager.dispatch = dispatch;
 
     filterManager.applyOrderInColumns();
@@ -45,19 +49,27 @@ export default function useFilter(options: UseFilterOptions) {
 export class FilterManager{
     schema;
     state: FilterState = null as any;
+    debouncedState: FilterState = null as any;
     dispatch: Dispatch<FilterActions> = null as any;
     columns: MUIDataTableColumn[];
     rowsPerPage: number;
     rowsPerPageOptions: number[];
     history: History;
+    tableRef: React.MutableRefObject<MuiDataTableRefComponent>;
 
     constructor(options: FilterManagerOptions) {
-        const {columns, rowsPerPage, rowsPerPageOptions, history} = options
+        const {columns, rowsPerPage, rowsPerPageOptions, history, tableRef} = options
         this.columns = columns;
         this.rowsPerPage = rowsPerPage;
         this.rowsPerPageOptions = rowsPerPageOptions;
         this.history = history;
+        this.tableRef = tableRef;
         this.createValidationSchema();
+    }
+
+    private resetTablePagination(){
+        this.tableRef.current.changeRowsPerPage(this.rowsPerPage);
+        this.tableRef.current.changePage(0);
     }
 
     changeSearch(value){
@@ -75,7 +87,19 @@ export class FilterManager{
                 sort: changedColumn,
                 dir: direction.includes('desc') ? 'desc' : 'asc',
             })
-        )
+        );
+        this.resetTablePagination();
+    }
+
+    resetFilter(){
+        const INITIAL_STATE = {
+            ...this.schema.cast({}),
+            search: {value:null, update:true}
+        };
+        this.dispatch(Creators.setReset({
+            state: INITIAL_STATE
+        }));
+        this.resetTablePagination();
     }
 
     applyOrderInColumns(){
@@ -104,7 +128,7 @@ export class FilterManager{
         this.history.replace({
             pathname: this.history.location.pathname,
             search: "?" + new URLSearchParams(this.formatSearchParams() as any),
-            state: this.state
+            state: this.debouncedState
         })
     }
     pushHistory(){
@@ -113,7 +137,7 @@ export class FilterManager{
             pathname: this.history.location.pathname,
             search: "?" + new URLSearchParams(this.formatSearchParams() as any),
             state: {
-                ...this.state,
+                ...this.debouncedState,
                 search: this.cleanSearchText(this.state.search)
             },
         }
@@ -131,11 +155,11 @@ export class FilterManager{
         const search = this.cleanSearchText(this.state.search);
         return {
             ...(search && search !== '' && {search: search}),
-            ...(this.state.pagination.page !== 1 && {page: this.state.pagination.page}),
-            ...(this.state.pagination.per_page !== 15 && {per_page: this.state.pagination.per_page}),
-            ...(this.state.order.sort && {
-                sort: this.state.order.sort,
-                dir: this.state.order.dir,
+            ...(this.debouncedState.pagination.page !== 1 && {page: this.debouncedState.pagination.page}),
+            ...(this.debouncedState.pagination.per_page !== 15 && {per_page: this.debouncedState.pagination.per_page}),
+            ...(this.debouncedState.order.sort && {
+                sort: this.debouncedState.order.sort,
+                dir: this.debouncedState.order.dir,
             }),
         }
     }
@@ -165,8 +189,8 @@ export class FilterManager{
                     .transform(value => isNaN(value) || parseInt(value) < 1 ? undefined : value)
                     .default(1),
                 per_page: yup.number()
-                    .oneOf(this.rowsPerPageOptions)
-                    .transform(value => isNaN(value) ? undefined : value)
+                    .transform(value =>
+                        isNaN(value) || !this.rowsPerPageOptions.includes(parseInt(value)) ? undefined : value)
                     .default(this.rowsPerPage),
             }),
             order: yup.object().shape({

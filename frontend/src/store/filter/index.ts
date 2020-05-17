@@ -1,6 +1,6 @@
 import * as Typings from "./types";
 import {createActions, createReducer} from 'reduxsauce';
-import {SetSearchAction, State} from "./types";
+import {SetResetAction, SetSearchAction, State} from "./types";
 
 export const {Types, Creators} = createActions<{
     SET_SEARCH: string,
@@ -13,7 +13,7 @@ export const {Types, Creators} = createActions<{
     setPage(payload: Typings.SetPageAction['payload']): Typings.SetPageAction
     setPerPage(payload: Typings.SetPerPageAction['payload']): Typings.SetPerPageAction
     setOrder(payload: Typings.SetOrderAction['payload']): Typings.SetOrderAction,
-    setReset(),
+    setReset(payload: Typings.SetResetAction['payload']): Typings.SetResetAction,
 }>
 ({
     setSearch: ['payload'],
@@ -90,6 +90,6 @@ function setOrder(state = INITIAL_STATE, action: Typings.SetOrderAction) : Typin
     }
 }
 
-function setReset(state = INITIAL_STATE, action) {
-    return {...INITIAL_STATE, search: {value: null, update: true}};
+function setReset(state = INITIAL_STATE, action: SetResetAction) {
+    return action.payload.state;
 }
