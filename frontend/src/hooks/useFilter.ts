@@ -15,8 +15,14 @@ interface FilterManagerOptions {
     rowsPerPageOptions: number[];
     debounceTime: number;
     history: History;
-    tableRef: React.MutableRefObject<MuiDataTableRefComponent>
-    // extraFilter?: ExtraFilter
+    tableRef: React.MutableRefObject<MuiDataTableRefComponent>;
+    extraFilter?: ExtraFilter;
+}
+
+interface ExtraFilter{
+    getStateFromURL: (queryParams: URLSearchParams) => any,
+    formatSearchParams: (debouncedState: FilterState) => any,
+    createValidationSchema: () => any,
 }
 
 interface UseFilterOptions extends Omit<FilterManagerOptions, 'history'>{
@@ -56,14 +62,16 @@ export class FilterManager{
     rowsPerPageOptions: number[];
     history: History;
     tableRef: React.MutableRefObject<MuiDataTableRefComponent>;
+    extraFilter?: ExtraFilter;
 
     constructor(options: FilterManagerOptions) {
-        const {columns, rowsPerPage, rowsPerPageOptions, history, tableRef} = options
+        const {columns, rowsPerPage, rowsPerPageOptions, history, tableRef, extraFilter} = options
         this.columns = columns;
         this.rowsPerPage = rowsPerPage;
         this.rowsPerPageOptions = rowsPerPageOptions;
         this.history = history;
         this.tableRef = tableRef;
+        this.extraFilter = extraFilter;
         this.createValidationSchema();
     }
 
@@ -161,6 +169,9 @@ export class FilterManager{
                 sort: this.debouncedState.order.sort,
                 dir: this.debouncedState.order.dir,
             }),
+            ...(
+                this.extraFilter && this.extraFilter.formatSearchParams(this.debouncedState)
+            )
         }
     }
 
@@ -176,6 +187,11 @@ export class FilterManager{
                 sort: queryParams.get('sort'),
                 dir: queryParams.get('dir'),
             },
+            ...(
+                this.extraFilter && {
+                    extraFilter: this.extraFilter.getStateFromURL(queryParams)
+                }
+            )
         })
     }
 
@@ -207,6 +223,11 @@ export class FilterManager{
                     .transform(value => !value || !['asc', 'desc'].includes(value.toLowerCase()) ? undefined : value)
                     .default(null),
             }),
+            ...(
+                this.extraFilter && {
+                    extraFilter: this.extraFilter.createValidationSchema()
+                }
+            )
         })
     }
 }
