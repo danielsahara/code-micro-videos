@@ -5,12 +5,15 @@ import parseISO from "date-fns/parseISO";
 import categoryHttp from "../../util/http/category-http";
 import {Category} from "@material-ui/icons";
 import {BadgeNo, BadgeYes} from "../../components/Badge";
-import {ListResponse} from "../../util/models";
+import {CastMemberTypeMap, ListResponse} from "../../util/models";
 import DefaultTable, {TableColumn, MuiDataTableRefComponent} from '../../components/Table'
 import {useSnackbar} from "notistack";
 import {FilterResetButton} from "../../components/Table/FilterResetButton";
 import reducer, {INITIAL_STATE, Creators} from "../../store/filter";
 import useFilter from "../../hooks/useFilter";
+import * as yup from "../../util/vendor/yup";
+
+const castMemberNames = Object.values(CastMemberTypeMap)
 
 const columsDefinition: TableColumn[] = [
     {
@@ -94,6 +97,31 @@ const Table = (props: Props) => {
         rowsPerPage,
         rowsPerPageOptions,
         tableRef,
+        extraFilter:{
+            createValidationSchema: () => {
+                return yup.object().shape({
+                    type: yup.string()
+                        .nullable()
+                        .oneOf(castMemberNames)
+                        .transform(value => {
+                            return !value || !castMemberNames.includes(value)? undefined: value;
+                        })
+                        .default(null)
+                })
+            },
+            formatSearchParams: (debouncedState) => {
+                return debouncedState.extraFilter ? {
+                    ...(
+                        debouncedState.extraFilter.type && {type: debouncedState.extraFilter.type}
+                    )
+                }: undefined
+            },
+            getStateFromURL: (queryParams) =>{
+                return {
+                    type: queryParams.get('type')
+                }
+            }
+        }
     });
     // const [filterState, setSearchState] = useState<SearchState>(initialState);
 
