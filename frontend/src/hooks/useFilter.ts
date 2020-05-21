@@ -99,6 +99,10 @@ export class FilterManager{
         this.resetTablePagination();
     }
 
+    changeExtraFilter(data){
+        this.dispatch(Creators.updateExtraFilter(data));
+    }
+
     resetFilter(){
         const INITIAL_STATE = {
             ...this.schema.cast({}),

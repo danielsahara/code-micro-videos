@@ -5,35 +5,44 @@ import parseISO from "date-fns/parseISO";
 import categoryHttp from "../../util/http/category-http";
 import {Category} from "@material-ui/icons";
 import {BadgeNo, BadgeYes} from "../../components/Badge";
-import {CastMemberTypeMap, ListResponse} from "../../util/models";
+import {BooleanTypeMap, CastMemberTypeMap, ListResponse} from "../../util/models";
 import DefaultTable, {TableColumn, MuiDataTableRefComponent} from '../../components/Table'
 import {useSnackbar} from "notistack";
 import {FilterResetButton} from "../../components/Table/FilterResetButton";
 import reducer, {INITIAL_STATE, Creators} from "../../store/filter";
 import useFilter from "../../hooks/useFilter";
 import * as yup from "../../util/vendor/yup";
+import {invert} from "lodash";
 
-const castMemberNames = Object.values(CastMemberTypeMap)
+// const castMemberNames = Object.values(CastMemberTypeMap)
 
+const booleanName = Object.values(BooleanTypeMap);
 const columsDefinition: TableColumn[] = [
     {
         name: 'id',
         label: 'ID',
         width: '30%',
         options:{
-            sort: false
+            sort: false,
+            filter: false
         }
     },
     {
         name: 'name',
         label: 'Nome',
         width: '43%',
+        options:{
+            filter: false
+        }
     },
     {
         name: 'is_active',
         label: 'Ativo',
         options: {
-            customBodyRender(value, tableMeta, update) {
+            filterOptions: {
+                names: ['Sim', 'Nao']
+            },
+            customBodyRender(value, tableMeta, updateValue) {
                 return value ? <BadgeYes/> : <BadgeNo/>
             }
         },
@@ -44,6 +53,7 @@ const columsDefinition: TableColumn[] = [
         label: 'Criado em',
         width: '10%',
         options: {
+            filter: false,
             customBodyRender(value, tableMeta, update) {
                 return <span>{format(parseISO(value), 'dd/MM/yyyy')}</span>;
             }
@@ -53,6 +63,9 @@ const columsDefinition: TableColumn[] = [
         name: 'actions',
         label: 'Ações',
         width: '13%',
+        options:{
+            filter: false
+        }
     },
 ];
 
@@ -67,16 +80,13 @@ interface Category {
     id: string,
     name: string,
 }
-type Props = {
-    
-};
 
 const debounceTime = 300;
 const debouncedSearchTime = 300;
 const rowsPerPage = 15;
 const rowsPerPageOptions = [ 15, 25, 50];
 
-const Table = (props: Props) => {
+const Table = () => {
 
     const snackbar = useSnackbar();
     const subscribed = useRef(true);//current: true
@@ -97,33 +107,8 @@ const Table = (props: Props) => {
         rowsPerPage,
         rowsPerPageOptions,
         tableRef,
-        extraFilter:{
-            createValidationSchema: () => {
-                return yup.object().shape({
-                    type: yup.string()
-                        .nullable()
-                        .oneOf(castMemberNames)
-                        .transform(value => {
-                            return !value || !castMemberNames.includes(value)? undefined: value;
-                        })
-                        .default(null)
-                })
-            },
-            formatSearchParams: (debouncedState) => {
-                return debouncedState.extraFilter ? {
-                    ...(
-                        debouncedState.extraFilter.type && {type: debouncedState.extraFilter.type}
-                    )
-                }: undefined
-            },
-            getStateFromURL: (queryParams) =>{
-                return {
-                    type: queryParams.get('type')
-                }
-            }
-        }
+
     });
-    // const [filterState, setSearchState] = useState<SearchState>(initialState);
 
     useEffect(() => {
         filterManager.replaceHistory();
@@ -142,7 +127,7 @@ const Table = (props: Props) => {
         debounceFilterState.pagination.page,
         debounceFilterState.pagination.per_page,
         debounceFilterState.order,
-
+        JSON.stringify(debounceFilterState.extraFilter)
     ]);
 
     async function getData() {
@@ -150,23 +135,20 @@ const Table = (props: Props) => {
         try {
             const {data} = await categoryHttp.list<ListResponse<Category>>({
                 queryParams: {
-                    search: filterManager.cleanSearchText(filterState.search),
-                    page: filterState.pagination.page,
-                    per_page: filterState.pagination.per_page,
-                    sort: filterState.order.sort,
-                    dir: filterState.order.dir,
+                    search: filterManager.cleanSearchText(debounceFilterState.search),
+                    page: debounceFilterState.pagination.page,
+                    per_page: debounceFilterState.pagination.per_page,
+                    sort: debounceFilterState.order.sort,
+                    dir: debounceFilterState.order.dir,
+                    ...(
+                        debounceFilterState.extraFilter && debounceFilterState.extraFilter.is_active &&
+                        {is_active: debounceFilterState.extraFilter.is_active === 'Sim' ? 1 : 0}
+                    )
                 }
             });
             if(subscribed.current){
                 setData(data.data);
                 setTotalRecords(data.meta.total);
-                // setSearchState((prevState => ({
-                //     ...prevState,
-                //     pagination:{
-                //         ...prevState.pagination,
-                //         total: data.meta.total,
-                //     }
-                // })))
             }
         }
         catch (error) {
@@ -198,6 +180,12 @@ const Table = (props: Props) => {
                 rowsPerPage: filterState.pagination.per_page,
                 rowsPerPageOptions,
                 count: totalRecords,
+                onFilterChange: (column, filterList, type) =>{
+                    const columnIndex = columns.findIndex(c => c.name === column);
+                    filterManager.changeExtraFilter({
+                        [column]: filterList[columnIndex].length ? filterList[columnIndex][0] : null
+                    })
+                },
                 customToolbar: () => (
                     <FilterResetButton
                         handleClick={() => filterManager.resetFilter()}

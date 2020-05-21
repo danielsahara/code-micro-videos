@@ -15,14 +15,14 @@ export const {Types, Creators} = createActions<{
     setPerPage(payload: Typings.SetPerPageAction['payload']): Typings.SetPerPageAction
     setOrder(payload: Typings.SetOrderAction['payload']): Typings.SetOrderAction,
     setReset(payload: Typings.SetResetAction['payload']): Typings.SetResetAction,
-    updateExtrafilter(payload: Typings.UpdateExtraFilterAction['payload']): Typings.UpdateExtraFilterAction,
+    updateExtraFilter(payload: Typings.UpdateExtraFilterAction['payload']): Typings.UpdateExtraFilterAction,
 }>
 ({
     setSearch: ['payload'],
     setPage: ['payload'],
     setPerPage: ['payload'],
     setOrder: ['payload'],
-    setReset: [],
+    setReset: ['payload'],
     updateExtraFilter: ['payload'],
 });
 

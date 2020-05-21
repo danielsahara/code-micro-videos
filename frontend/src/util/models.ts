@@ -41,6 +41,11 @@ export const CastMemberTypeMap = {
     2: 'Ator'
 };
 
+export const BooleanTypeMap = {
+    'Nao' : 0,
+    'Sim' : 1,
+};
+
 export interface Genre extends Timestampable{
     readonly id: string;
     name: string;
