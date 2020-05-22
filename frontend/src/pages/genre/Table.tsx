@@ -23,6 +23,7 @@ const columsDefinition : TableColumn[] = [
         label: 'ID',
         width: '30%',
         options:{
+            filter: false,
             sort: false,
         }
     },
@@ -38,6 +39,7 @@ const columsDefinition : TableColumn[] = [
         name: 'is_active',
         label: 'Ativo',
         options: {
+            filter: false,
             customBodyRender(value, tableMeta, updateValue) {
                 return value ? <BadgeYes/> : <BadgeNo/>
             }
@@ -62,6 +64,7 @@ const columsDefinition : TableColumn[] = [
         name: 'created_at',
         label: 'Criado em',
         options: {
+            filter: false,
             customBodyRender(value, tableMeta, update) {
                 return <span>{format(parseISO(value), 'dd/MM/yyyy')}</span>;
             }
