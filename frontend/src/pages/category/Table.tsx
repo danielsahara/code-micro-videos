@@ -39,6 +39,7 @@ const columsDefinition: TableColumn[] = [
         name: 'is_active',
         label: 'Ativo',
         options: {
+            // filterList: ['Sim'],
             filterOptions: {
                 names: ['Sim', 'Nao']
             },
@@ -107,8 +108,16 @@ const Table = () => {
         rowsPerPage,
         rowsPerPageOptions,
         tableRef,
-
     });
+
+    const indexColumnType = columns.findIndex(c => c.name === 'is_active');
+    const columnType = columns[indexColumnType];
+    const activeFilterValue = filterState.extraFilter && filterState.extraFilter.is_active as never;
+    const serverSideFilterList = columns.map(columns => []);
+
+    if(activeFilterValue){
+        serverSideFilterList[indexColumnType] = [activeFilterValue];
+    }
 
     useEffect(() => {
         filterManager.replaceHistory();
@@ -173,6 +182,7 @@ const Table = () => {
             debouncedSearchTime={debouncedSearchTime}
             ref={tableRef}
             options={{
+                serverSideFilterList,
                 serverSide: true,
                 responsive: "scrollMaxHeight",
                 searchText: filterState.search as any,
