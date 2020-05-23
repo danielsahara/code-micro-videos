@@ -1,15 +1,20 @@
 // @flow
 import * as React from 'react';
-import {MutableRefObject, useRef, useState} from 'react';
-import {InputAdornment, TextField, TextFieldProps} from "@material-ui/core";
+import {MutableRefObject, useImperativeHandle, useRef, useState} from 'react';
+import {InputAdornment, TableProps, TextField, TextFieldProps} from "@material-ui/core";
+import {MuiDataTableRefComponent} from "./Table";
 
-interface InputFileProps {
+export interface InputFileProps {
     ButtonFile: React.ReactNode;
     InputFileProps?: React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
     TextFieldProps?: TextFieldProps;
 }
 
-const InputFile: React.FC<InputFileProps>= (props) => {
+export interface InputFileComponent{
+    openWindow: () => void
+}
+
+const InputFile = React.forwardRef<InputFileComponent, InputFileProps>((props, ref) => {
     const fileRef = useRef() as MutableRefObject<HTMLInputElement>;
     const [fileName, setFileName] = useState("");
 
@@ -46,12 +51,16 @@ const InputFile: React.FC<InputFileProps>= (props) => {
         }
     }
 
+    useImperativeHandle(ref, () => ({
+        openWindow: () => fileRef.current.click()
+    }));
+
     return (
         <>
             <input type="file" {...inputFileProps} />
             <TextField {...textFieldProps} />
         </>
     );
-};
+});
 
 export default InputFile

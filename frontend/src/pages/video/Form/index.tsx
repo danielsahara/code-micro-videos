@@ -1,11 +1,11 @@
 import * as React from 'react';
 import {useEffect, useState} from 'react';
 import {
-    Button,
+    Button, Card, CardContent,
     Checkbox,
     FormControlLabel,
     Grid,
-    TextField,
+    TextField, Theme,
     Typography,
     useMediaQuery,
     useTheme
@@ -14,7 +14,7 @@ import useForm from "react-hook-form";
 import * as yup from '../../../util/vendor/yup';
 import {useHistory, useParams} from 'react-router';
 import {useSnackbar} from 'notistack';
-import {Video} from "../../../util/models";
+import {Video, VideoFileFieldsMap} from "../../../util/models";
 import SubmitActions from "../../../components/SubmitActions";
 import {DefaultForm} from "../../../components/DefaultForm";
 import videoHttp from "../../../util/http/video-http";
@@ -22,6 +22,15 @@ import {RatingField} from "./RatingField";
 import InputFile from "../../../components/InputFile";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import {UploadField} from "./UploadField";
+import {makeStyles} from "@material-ui/core/styles";
+
+const useStyles = makeStyles((theme: Theme) => ({
+    cardUpload: {
+        borderRadius: "4px",
+        backgroundColor: "#f5f5f5",
+        margin: theme.spacing(2, 0)
+    }
+}));
 
 const validationSchema = yup.object().shape({
     title: yup.string()
@@ -43,6 +52,8 @@ const validationSchema = yup.object().shape({
         .label('Classificação')
         .required(),
 });
+
+const fileFields = Object.keys(VideoFileFieldsMap)
 
 export const Index = () => {
 
@@ -68,9 +79,10 @@ export const Index = () => {
     const[loading, setLoading] = useState<boolean>(false);
     const theme = useTheme();
     const isGreaterMd = useMediaQuery(theme.breakpoints.up('md'));
+    const classes = useStyles();
 
     useEffect(() => {
-        ['rating', 'opened'].forEach(name => register({name}));
+        ['rating', 'opened', ...fileFields].forEach(name => register({name}));
     },[register]);
 
     useEffect(() => {
@@ -210,11 +222,41 @@ export const Index = () => {
                         }}
                     />
                     <br />
-                    <UploadField
-                        accept={'video/mp4'}
-                        label={'Thumb'}
-                        setValue={(value) => setValue('thumb_file' ,value)}
-                    />
+                    <Card className={classes.cardUpload}>
+                        <CardContent>
+                            <Typography color={"primary"} variant={"h6"}>
+                                Imagens
+                            </Typography>
+                            <UploadField
+                                accept={'image/*'}
+                                label={'Thumb'}
+                                setValue={(value) => setValue('thumb_file' ,value)}
+                            />
+                            <UploadField
+                                accept={'image/*'}
+                                label={'Banner'}
+                                setValue={(value) => setValue('banner_file' ,value)}
+                            />
+                        </CardContent>
+                    </Card>
+                    <Card className={classes.cardUpload}>
+                        <CardContent>
+                            <Typography color={"primary"} variant={"h6"}>
+                                Imagens
+                            </Typography>
+                            <UploadField
+                                accept={'video/mp4'}
+                                label={'Trailer'}
+                                setValue={(value) => setValue('trailer_file' ,value)}
+                            />
+                            <UploadField
+                                accept={'video/mp4'}
+                                label={'Principal'}
+                                setValue={(value) => setValue('video_file' ,value)}
+                            />
+                        </CardContent>
+                    </Card>
+
                     <FormControlLabel
                         control={
                             <Checkbox

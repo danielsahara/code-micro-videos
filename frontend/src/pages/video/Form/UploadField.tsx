@@ -13,7 +13,8 @@ import {
 } from "@material-ui/core";
 import Rating from "../../../components/Ratings";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
-import InputFile from "../../../components/InputFile";
+import InputFile, {InputFileComponent} from "../../../components/InputFile";
+import {MutableRefObject, useRef} from "react";
 
 interface UploadFieldProps {
     accept: string,
@@ -26,18 +27,24 @@ interface UploadFieldProps {
 
 
 export const UploadField: React.FC<UploadFieldProps> = (props) => {
+    const fileRef = useRef() as MutableRefObject<InputFileComponent>;
+
     const {accept, label, setValue,  error, disabled} = props;
 
     return (
-        <FormControl margin={"none"}
+        <FormControl
              error={error !== undefined}
              disabled={disabled === true}
+             fullWidth
+             margin={"normal"}
              {...props.FormControlProps}
         >
             <InputFile
+                ref={fileRef}
                 TextFieldProps={{
                     label: label,
-                    InputLabelProps: {shrink: true}
+                    InputLabelProps: {shrink: true},
+                    style: { backgroundColor: '#ffffff'}
                 }}
                 InputFileProps={{
                     accept: accept,
@@ -51,7 +58,7 @@ export const UploadField: React.FC<UploadFieldProps> = (props) => {
                         endIcon={<CloudUploadIcon />}
                         variant={"contained"}
                         color={"primary"}
-                        onClick={() => {}}
+                        onClick={() => fileRef.current.openWindow()}
                     >
                         Adicionar
                     </Button>

@@ -57,7 +57,7 @@ interface GenreVideo extends Omit<Genre, 'categories'>{
 
 }
 
-export const VideoFileFieldMap = {
+export const VideoFileFieldsMap = {
     'thumb_file': 'Thumbnail',
     'banner_file': 'Banner',
     'trailer_file': 'Trailer',
