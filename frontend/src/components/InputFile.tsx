@@ -1,36 +1,58 @@
 // @flow
 import * as React from 'react';
-import {Button, InputAdornment, TextField} from "@material-ui/core";
+import {Button, InputAdornment, TextField, TextFieldProps} from "@material-ui/core";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
-import {MutableRefObject, useRef} from "react";
+import {MutableRefObject, useRef, useState} from "react";
 
-type Props = {
+interface InputFileProps {
+    InputFileProps?: React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
+    TextFieldProps?: TextFieldProps;
+}
 
-};
-const InputFile = (props: Props) => {
+const InputFile: React.FC<InputFileProps>= (props) => {
     const fileRef = useRef() as MutableRefObject<HTMLInputElement>;
+    const [fileName, setFileName] = useState("");
+
+    const textFieldProps: TextFieldProps = {
+        variant: "outlined",
+        InputProps: {
+            readOnly: true,
+            endAdornment: (
+                <InputAdornment position={"end"}>
+                    <Button
+                        endIcon={<CloudUploadIcon />}
+                        variant={"contained"}
+                        color={"primary"}
+                        onClick={() => fileRef.current.click()}
+                    >
+                        Adicionar
+                    </Button>
+                </InputAdornment>
+            )
+        },
+        ...props.TextFieldProps,
+        value: fileName
+    };
+
+    const inputFileProps = {
+        ...props.InputFileProps,
+        hidden: true,
+        ref: fileRef,
+        onChange(event){
+            const files = event.target.files;
+            if(files && files.length){
+                setFileName(Array.from(files).map((file: any) => file.name).join(', '));
+            }
+            if(props.InputFileProps && props.InputFileProps.onChange){
+                props.InputFileProps.onChange(event)
+            }
+        }
+    }
 
     return (
         <>
-            <input type="file" hidden={true} ref={fileRef}/>
-            <TextField
-                variant={"outlined"}
-                InputProps={{
-                    readOnly: true,
-                    endAdornment: (
-                        <InputAdornment position={"end"}>
-                            <Button
-                                endIcon={<CloudUploadIcon />}
-                                variant={"contained"}
-                                color={"primary"}
-                                onClick={() => fileRef.current.click()}
-                            >
-                                Adicionar
-                            </Button>
-                        </InputAdornment>
-                    )
-                }}
-            />
+            <input type="file" {...inputFileProps} />
+            <TextField {...textFieldProps} />
         </>
     );
 };
