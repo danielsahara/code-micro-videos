@@ -10,6 +10,7 @@ import SubmitActions from "../../../components/SubmitActions";
 import {DefaultForm} from "../../../components/DefaultForm";
 import videoHttp from "../../../util/http/video-http";
 import {RatingField} from "./RatingField";
+import InputFile from "../../../components/InputFile";
 
 const validationSchema = yup.object().shape({
     title: yup.string()
@@ -199,7 +200,7 @@ export const Index = () => {
                     />
                     <br />
                     Uploads
-                    <br />
+                    <InputFile />
                     <FormControlLabel
                         control={
                             <Checkbox
