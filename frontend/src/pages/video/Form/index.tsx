@@ -1,6 +1,15 @@
 import * as React from 'react';
 import {useEffect, useState} from 'react';
-import {Checkbox, FormControlLabel, Grid, TextField, Typography, useMediaQuery, useTheme} from "@material-ui/core";
+import {
+    Button,
+    Checkbox,
+    FormControlLabel,
+    Grid,
+    TextField,
+    Typography,
+    useMediaQuery,
+    useTheme
+} from "@material-ui/core";
 import useForm from "react-hook-form";
 import * as yup from '../../../util/vendor/yup';
 import {useHistory, useParams} from 'react-router';
@@ -11,6 +20,8 @@ import {DefaultForm} from "../../../components/DefaultForm";
 import videoHttp from "../../../util/http/video-http";
 import {RatingField} from "./RatingField";
 import InputFile from "../../../components/InputFile";
+import CloudUploadIcon from "@material-ui/icons/CloudUpload";
+import {UploadField} from "./UploadField";
 
 const validationSchema = yup.object().shape({
     title: yup.string()
@@ -199,8 +210,11 @@ export const Index = () => {
                         }}
                     />
                     <br />
-                    Uploads
-                    <InputFile />
+                    <UploadField
+                        accept={'video/mp4'}
+                        label={'Thumb'}
+                        setValue={(value) => setValue('thumb_file' ,value)}
+                    />
                     <FormControlLabel
                         control={
                             <Checkbox
