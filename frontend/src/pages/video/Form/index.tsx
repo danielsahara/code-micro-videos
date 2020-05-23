@@ -2,13 +2,14 @@ import * as React from 'react';
 import {useEffect, useState} from 'react';
 import {Checkbox, FormControlLabel, Grid, TextField, Typography} from "@material-ui/core";
 import useForm from "react-hook-form";
-import * as yup from '../../util/vendor/yup';
+import * as yup from '../../../util/vendor/yup';
 import {useHistory, useParams} from 'react-router';
 import {useSnackbar} from 'notistack';
-import {Video} from "../../util/models";
-import SubmitActions from "../../components/SubmitActions";
-import {DefaultForm} from "../../components/DefaultForm";
-import videoHttp from "../../util/http/video-http";
+import {Video} from "../../../util/models";
+import SubmitActions from "../../../components/SubmitActions";
+import {DefaultForm} from "../../../components/DefaultForm";
+import videoHttp from "../../../util/http/video-http";
+import {RatingField} from "./RatingField";
 
 const validationSchema = yup.object().shape({
     title: yup.string()
@@ -31,7 +32,7 @@ const validationSchema = yup.object().shape({
         .required(),
 });
 
-export const Form = () => {
+export const Index = () => {
 
     const {
         register,
@@ -45,7 +46,6 @@ export const Form = () => {
     } = useForm({
         validationSchema,
         defaultValues:{
-            is_active: true
         }
     });
 
@@ -54,6 +54,10 @@ export const Form = () => {
     const {id} = useParams();
     const[video, setVideo] = useState<Video | null>(null);
     const[loading, setLoading] = useState<boolean>(false);
+
+    useEffect(() => {
+        ['rating', 'opened'].forEach(name => register({name}));
+    },[register]);
 
     useEffect(() => {
         if (!id) {
@@ -182,7 +186,12 @@ export const Form = () => {
                     Generos e categorias
                 </Grid>
                 <Grid item xs={12} md={6}>
-                    Classificação
+                    <RatingField
+                        value={watch('rating')}
+                        setValue={(value) => setValue('rating', value, true)}
+                        error={errors.rating}
+                        disabled={loading}
+                    />
                     <br />
                     Uploads
                     <br />
