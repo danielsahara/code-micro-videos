@@ -23,6 +23,7 @@ import InputFile from "../../../components/InputFile";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import {UploadField} from "./UploadField";
 import {makeStyles} from "@material-ui/core/styles";
+import AsyncAutocomplete from "../../../components/AsyncAutocomplete";
 
 const useStyles = makeStyles((theme: Theme) => ({
     cardUpload: {
@@ -209,7 +210,7 @@ export const Index = () => {
 
                     Elenco
                     <br />
-                    Generos e categorias
+                    <AsyncAutocomplete />
                 </Grid>
                 <Grid item xs={12} md={6}>
                     <RatingField
