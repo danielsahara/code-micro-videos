@@ -28,6 +28,8 @@ import genreHttp from "../../../util/http/genre-http";
 import {GridSelected} from "../../../components/GridSelected";
 import {GridSelectedItem} from "../../../components/GridSelectedItem";
 import useHttpHandled from "../../../hooks/useHttpHandled";
+import GenreField from "./GenreField";
+import CategoryField from "./CategoryField";
 
 const useStyles = makeStyles((theme: Theme) => ({
     cardUpload: {
@@ -148,20 +150,9 @@ export const Index = () => {
         }
     }
 
-    const autocompleteHttp = useHttpHandled();
-
-    const fetchOptions = (searchText) => autocompleteHttp(
-        genreHttp.list({
-            queryParams: {
-                search: searchText,
-                all: ""
-            }
-        })
-    ).then(data => data.data).catch(error => console.log(error));
-
     return(
         <DefaultForm GridItemProps={{xs: 12}}
-                     onSubmit={handleSubmit(onSubmit)}
+             onSubmit={handleSubmit(onSubmit)}
         >
             <Grid container spacing={5}>
                 <Grid item xs={12} md={6}>
@@ -225,21 +216,15 @@ export const Index = () => {
 
                     Elenco
                     <br />
-                    <AsyncAutocomplete
-                        fetchOptions={fetchOptions}
-                        AutocompleteProps={{
-                            freeSolo: true,
-                            getOptionLabel: option => option.name,
-                        }}
-                        TextFieldProps={{
-                            label: 'Gêneros'
-                        }}
-                    />
-                    <GridSelected>
-                        <GridSelectedItem onClick={() => {}}>
-                            <Typography noWrap={true}>Genero 1</Typography>
-                        </GridSelectedItem>
-                    </GridSelected>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} md={6}>
+                            <GenreField />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <CategoryField />
+                        </Grid>
+                    </Grid>
+
                 </Grid>
                 <Grid item xs={12} md={6}>
                     <RatingField
