@@ -1,7 +1,7 @@
 // @flow 
 import * as React from 'react';
 import {Autocomplete, AutocompleteProps} from "@material-ui/lab";
-import {TextField, TextFieldProps} from "@material-ui/core";
+import {CircularProgress, InputAdornment, TextField, TextFieldProps} from "@material-ui/core";
 import {useState} from "react";
 
 interface AsyncAutocompleteProps {
@@ -11,6 +11,8 @@ interface AsyncAutocompleteProps {
 const AsyncAutocomplete: React.FC<AsyncAutocompleteProps> = (props) => {
     const [open, setOpen] = useState(true);
     const [searchText, setSearchText] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [options, setOptions] = useState([]);
 
     const textFieldProps: TextFieldProps = {
         margin: "normal",
@@ -22,6 +24,10 @@ const AsyncAutocomplete: React.FC<AsyncAutocompleteProps> = (props) => {
 
     const autocompleteProps: AutocompleteProps = {
         open,
+        options,
+        loading: loading,
+        loadingText: "Carregando...",
+        noOptionsText: 'Nenhum item encontrado',
         onOpen(){
             setOpen(true);
         },
@@ -31,11 +37,21 @@ const AsyncAutocomplete: React.FC<AsyncAutocompleteProps> = (props) => {
         onInputChange(event, value){
             setSearchText(value)
         },
-        renderInput: params => (
-            <TextField {...params}
-                       {...textFieldProps}
+        renderInput: params => {
+            return <TextField
+                {...params}
+                {...textFieldProps}
+                InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                        <>
+                            {loading && <CircularProgress color={"inherit"} size={20} />}
+                            {params.InputProps.endAdornment}
+                        </>
+                    )
+                }}
             />
-        )
+        }
     };
 
     return (
