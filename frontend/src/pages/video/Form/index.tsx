@@ -220,6 +220,10 @@ export const Index = () => {
                     <br />
                     <AsyncAutocomplete
                         fetchOptions={fetchOptions}
+                        AutocompleteProps={{
+                            freeSolo: false,
+                            getOptionLabel: option => option.name,
+                        }}
                         TextFieldProps={{
                             label: 'Gêneros'
                         }}

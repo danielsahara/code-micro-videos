@@ -1,19 +1,19 @@
-// @flow 
+// @flow
 import * as React from 'react';
+import {useEffect, useState} from 'react';
 import {Autocomplete, AutocompleteProps} from "@material-ui/lab";
-import {CircularProgress, InputAdornment, TextField, TextFieldProps} from "@material-ui/core";
-import {useEffect, useState} from "react";
-import categoryHttp from "../util/http/category-http";
-import castMemberHttp from "../util/http/cast-member-http";
-import videoHttp from "../util/http/video-http";
+import {CircularProgress, TextField, TextFieldProps} from "@material-ui/core";
 import {useSnackbar} from "notistack";
 
 interface AsyncAutocompleteProps {
     fetchOptions: (searchText) => Promise<any>
     TextFieldProps?: TextFieldProps
+    AutocompleteProps?: Omit<AutocompleteProps, 'renderInput'>
 }
 
 const AsyncAutocomplete: React.FC<AsyncAutocompleteProps> = (props) => {
+    const {AutocompleteProps} = props;
+    const {freeSolo, onOpen, onClose, onInputChange} = AutocompleteProps as any;
     const [open, setOpen] = useState(true);
     const [searchText, setSearchText] = useState("");
     const [loading, setLoading] = useState(false);
@@ -30,19 +30,23 @@ const AsyncAutocomplete: React.FC<AsyncAutocompleteProps> = (props) => {
     };
 
     const autocompleteProps: AutocompleteProps = {
+        loadingText: "Carregando...",
+        noOptionsText: 'Nenhum item encontrado',
+        ...(AutocompleteProps && {...AutocompleteProps}),
         open,
         options,
         loading: loading,
-        loadingText: "Carregando...",
-        noOptionsText: 'Nenhum item encontrado',
         onOpen(){
             setOpen(true);
+            onOpen && onOpen();
         },
         onClose(){
             setOpen(false);
+            onClose && onClose();
         },
         onInputChange(event, value){
             setSearchText(value)
+            onInputChange && onInputChange();
         },
         renderInput: params => {
             return <TextField
@@ -62,13 +66,17 @@ const AsyncAutocomplete: React.FC<AsyncAutocompleteProps> = (props) => {
     };
 
     useEffect(() => {
+        if(!open || searchText === "" && freeSolo){
+            return;
+        }
+
         let isSubscribed = true;
 
         (async() => {
             setLoading(true);
 
             try {
-                const {data} = await props.fetchOptions(searchText)
+                const data = await props.fetchOptions(searchText)
 
                 if(isSubscribed){
                     setOptions(data);
@@ -85,7 +93,7 @@ const AsyncAutocomplete: React.FC<AsyncAutocompleteProps> = (props) => {
         return () => {
             isSubscribed = false;
         }
-    }, [searchText]);
+    }, [freeSolo ? searchText : open]);
 
     return (
         <Autocomplete {...autocompleteProps} />
