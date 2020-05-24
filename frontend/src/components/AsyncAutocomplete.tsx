@@ -8,7 +8,7 @@ import {useSnackbar} from "notistack";
 interface AsyncAutocompleteProps {
     fetchOptions: (searchText) => Promise<any>
     TextFieldProps?: TextFieldProps
-    AutocompleteProps?: Omit<AutocompleteProps, 'renderInput'>
+    AutocompleteProps?: Omit<AutocompleteProps<any>, 'renderInput'>
 }
 
 const AsyncAutocomplete: React.FC<AsyncAutocompleteProps> = (props) => {
@@ -29,7 +29,7 @@ const AsyncAutocomplete: React.FC<AsyncAutocompleteProps> = (props) => {
             ...(props.TextFieldProps && {...props.TextFieldProps}),
     };
 
-    const autocompleteProps: AutocompleteProps = {
+    const autocompleteProps: AutocompleteProps<any> = {
         loadingText: "Carregando...",
         noOptionsText: 'Nenhum item encontrado',
         ...(AutocompleteProps && {...AutocompleteProps}),
@@ -64,6 +64,12 @@ const AsyncAutocomplete: React.FC<AsyncAutocompleteProps> = (props) => {
             />
         }
     };
+
+    useEffect(() => {
+        if(!open && !freeSolo){
+            setOptions([])
+        }
+    }, [open])
 
     useEffect(() => {
         if(!open || searchText === "" && freeSolo){
