@@ -25,6 +25,8 @@ import {UploadField} from "./UploadField";
 import {makeStyles} from "@material-ui/core/styles";
 import AsyncAutocomplete from "../../../components/AsyncAutocomplete";
 import genreHttp from "../../../util/http/genre-http";
+import {GridSelected} from "../../../components/GridSelected";
+import {GridSelectedItem} from "../../../components/GridSelectedItem";
 
 const useStyles = makeStyles((theme: Theme) => ({
     cardUpload: {
@@ -228,6 +230,11 @@ export const Index = () => {
                             label: 'Gêneros'
                         }}
                     />
+                    <GridSelected>
+                        <GridSelectedItem onClick={() => {}}>
+                            <Typography noWrap={true}>Genero 1</Typography>
+                        </GridSelectedItem>
+                    </GridSelected>
                 </Grid>
                 <Grid item xs={12} md={6}>
                     <RatingField
