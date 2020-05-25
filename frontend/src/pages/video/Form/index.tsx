@@ -51,6 +51,12 @@ const validationSchema = yup.object().shape({
         .label('Duração')
         .required()
         .min(1),
+    genres: yup.array()
+        .label('Gêneros')
+        .required(),
+    categories: yup.array()
+        .label('Categorias')
+        .required(),
     rating: yup.string()
         .label('Classificação')
         .required(),
@@ -219,6 +225,8 @@ export const Index = () => {
                             <GenreField
                                 genres={watch('genres')}
                                 setGenres={(value) => setValue('genres', value, true)}
+                                error={errors.genres}
+                                disabled={loading}
                             />
                         </Grid>
                         <Grid item xs={12} md={6}>
@@ -226,6 +234,8 @@ export const Index = () => {
                                 categories={watch('categories')}
                                 setCategories={(value) => setValue('categories', value, true)}
                                 genres={watch('genres')}
+                                error={errors.categories}
+                                disabled={loading}
                             />
                         </Grid>
                         <Grid item xs={12}>
