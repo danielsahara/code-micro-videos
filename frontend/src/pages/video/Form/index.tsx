@@ -1,11 +1,14 @@
 import * as React from 'react';
 import {useEffect, useState} from 'react';
 import {
-    Button, Card, CardContent,
+    Card,
+    CardContent,
     Checkbox,
     FormControlLabel,
+    FormHelperText,
     Grid,
-    TextField, Theme,
+    TextField,
+    Theme,
     Typography,
     useMediaQuery,
     useTheme
@@ -19,15 +22,8 @@ import SubmitActions from "../../../components/SubmitActions";
 import {DefaultForm} from "../../../components/DefaultForm";
 import videoHttp from "../../../util/http/video-http";
 import {RatingField} from "./RatingField";
-import InputFile from "../../../components/InputFile";
-import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import {UploadField} from "./UploadField";
 import {makeStyles} from "@material-ui/core/styles";
-import AsyncAutocomplete from "../../../components/AsyncAutocomplete";
-import genreHttp from "../../../util/http/genre-http";
-import {GridSelected} from "../../../components/GridSelected";
-import {GridSelectedItem} from "../../../components/GridSelectedItem";
-import useHttpHandled from "../../../hooks/useHttpHandled";
 import GenreField from "./GenreField";
 import CategoryField from "./CategoryField";
 
@@ -76,7 +72,8 @@ export const Index = () => {
     } = useForm({
         validationSchema,
         defaultValues:{
-            genres: []
+            genres: [],
+            categories: [],
         }
     });
 
@@ -90,7 +87,7 @@ export const Index = () => {
     const classes = useStyles();
 
     useEffect(() => {
-        ['rating', 'opened', 'genres', ...fileFields].forEach(name => register({name}));
+        ['rating', 'opened', 'genres','categories', ...fileFields].forEach(name => register({name}));
     },[register]);
 
     useEffect(() => {
@@ -225,7 +222,19 @@ export const Index = () => {
                             />
                         </Grid>
                         <Grid item xs={12} md={6}>
-                            <CategoryField />
+                            <CategoryField
+                                categories={watch('categories')}
+                                setCategories={(value) => setValue('categories', value, true)}
+                                genres={watch('genres')}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <FormHelperText>
+                                Escolha os generos do video
+                            </FormHelperText>
+                            <FormHelperText>
+                                Escolha pelo menos uma categoria de cada genero
+                            </FormHelperText>
                         </Grid>
                     </Grid>
 

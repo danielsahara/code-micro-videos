@@ -34,7 +34,7 @@ const GenreField: React.FC<GenreFieldProps> = (props) => {
             <AsyncAutocomplete
                 fetchOptions={fetchOptions}
                 AutocompleteProps={{
-                    freeSolo: true,
+                    freeSolo: false,
                     getOptionLabel: option => option.name,
                     onChange: (event, value) => addItem(value)
                 }}
@@ -43,7 +43,6 @@ const GenreField: React.FC<GenreFieldProps> = (props) => {
                 }}
             />
             <GridSelected>
-                {console.log('aa')}
                 {
                     genres.map((genre, key) => (
                         <GridSelectedItem key={key} onClick={() => {}} xs={12}>

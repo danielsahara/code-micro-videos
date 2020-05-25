@@ -13,8 +13,8 @@ interface AsyncAutocompleteProps {
 
 const AsyncAutocomplete: React.FC<AsyncAutocompleteProps> = (props) => {
     const {AutocompleteProps} = props;
-    const {freeSolo, onOpen, onClose, onInputChange} = AutocompleteProps as any;
-    const [open, setOpen] = useState(true);
+    const {freeSolo = false, onOpen, onClose, onInputChange} = AutocompleteProps as any;
+    const [open, setOpen] = useState(false);
     const [searchText, setSearchText] = useState("");
     const [loading, setLoading] = useState(false);
     const [options, setOptions] = useState([]);
