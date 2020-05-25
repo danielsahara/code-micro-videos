@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\GenreResource;
 use App\Models\Genre;
 use App\Models\Video;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class GenreController extends BasicCrudController
@@ -79,5 +80,10 @@ class GenreController extends BasicCrudController
     protected function resourceCollection()
     {
         return $this->resource();
+    }
+
+    protected function queryBuilder(): Builder
+    {
+        return parent::queryBuilder()->with('categories');
     }
 }
