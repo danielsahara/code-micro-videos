@@ -76,6 +76,7 @@ export const Index = () => {
     } = useForm({
         validationSchema,
         defaultValues:{
+            genres: []
         }
     });
 
@@ -89,7 +90,7 @@ export const Index = () => {
     const classes = useStyles();
 
     useEffect(() => {
-        ['rating', 'opened', ...fileFields].forEach(name => register({name}));
+        ['rating', 'opened', 'genres', ...fileFields].forEach(name => register({name}));
     },[register]);
 
     useEffect(() => {
@@ -218,7 +219,10 @@ export const Index = () => {
                     <br />
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
-                            <GenreField />
+                            <GenreField
+                                genres={watch('genres')}
+                                setGenres={(value) => setValue('genres', value, true)}
+                            />
                         </Grid>
                         <Grid item xs={12} md={6}>
                             <CategoryField />

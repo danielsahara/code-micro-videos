@@ -1,13 +1,13 @@
 import {useSnackbar} from "notistack";
 
-const useCollectionManager = (collection: any[], setCollection: (value) => void) => {
+const useCollectionManager = (collection: any[], setCollection: (item) => void) => {
     const snackbar = useSnackbar();
     return {
         addItem(item){
-           if(!item || item === ""){
+            if(!item || item === ""){
                return;
-           }
-           const exists = collection.find(i => i.id === item.id)
+            }
+            const exists = collection.find(i => i.id === item.id)
 
             if(exists){
                 snackbar.enqueueSnackbar('Item já adicionado', {variant: 'info'})
