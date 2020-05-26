@@ -1,18 +1,17 @@
 import * as React from 'react';
-import {useEffect, useReducer, useRef, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import categoryHttp from "../../util/http/category-http";
-import {Category} from "@material-ui/icons";
-import {BadgeNo, BadgeYes} from "../../components/Badge";
-import {BooleanTypeMap, CastMemberTypeMap, ListResponse} from "../../util/models";
-import DefaultTable, {TableColumn, MuiDataTableRefComponent} from '../../components/Table'
+import {BooleanTypeMap, ListResponse, Video} from "../../util/models";
+import DefaultTable, {MuiDataTableRefComponent, TableColumn} from '../../components/Table'
 import {useSnackbar} from "notistack";
 import {FilterResetButton} from "../../components/Table/FilterResetButton";
-import reducer, {INITIAL_STATE, Creators} from "../../store/filter";
 import useFilter from "../../hooks/useFilter";
-import * as yup from "../../util/vendor/yup";
-import {invert} from "lodash";
+import videoHttp from "../../util/http/video-http";
+import {IconButton} from "@material-ui/core";
+import {Link} from "react-router-dom";
+import EditIcon from '@material-ui/icons/Edit';
 
 // const castMemberNames = Object.values(CastMemberTypeMap)
 
@@ -28,26 +27,36 @@ const columsDefinition: TableColumn[] = [
         }
     },
     {
-        name: 'name',
-        label: 'Nome',
-        width: '43%',
+        name: 'title',
+        label: 'Título',
+        width: '20%',
         options:{
             filter: false
         }
     },
     {
-        name: 'is_active',
-        label: 'Ativo',
-        options: {
-            // filterList: ['Sim'],
-            filterOptions: {
-                names: ['Sim', 'Nao']
-            },
-            customBodyRender(value, tableMeta, updateValue) {
-                return value ? <BadgeYes/> : <BadgeNo/>
+        name: 'genres',
+        label: 'Gêneros',
+        width: '13%',
+        options:{
+            sort: false,
+            filter: false,
+            customBodyRender: (value, tableMeta, update) => {
+                return value.map(value => value.name).join(', ');
             }
-        },
-        width: '4%',
+        }
+    },
+    {
+        name: 'categories',
+        label: 'Categorias',
+        width: '12%',
+        options:{
+            sort: false,
+            filter: false,
+            customBodyRender: (value, tableMeta, update) => {
+                return value.map(value => value.name).join(', ');
+            }
+        }
     },
     {
         name: 'created_at',
@@ -65,17 +74,18 @@ const columsDefinition: TableColumn[] = [
         label: 'Ações',
         width: '13%',
         options:{
-            filter: false
+            sort: false,
+            filter: false,
+            customBodyRender: (value, tableMeta, update) => {
+                return (
+                    <IconButton color={"secondary"} component={Link} to={`/videos/${tableMeta.rowData[0]}/edit`}>
+                        <EditIcon />
+                    </IconButton>
+                )
+            }
         }
     },
 ];
-
-const data = [
-    {name: "teste1", is_active: true, created_at: "2019-12-12"},
-    {name: "teste2", is_active: false, created_at: "2019-12-13"},
-    {name: "teste3", is_active: true, created_at: "2019-12-14"},
-    {name: "teste4", is_active: false, created_at: "2019-12-15"},
-]
 
 interface Category {
     id: string,
@@ -91,7 +101,7 @@ const Table = () => {
 
     const snackbar = useSnackbar();
     const subscribed = useRef(true);//current: true
-    const [data, setData] = useState<Category[]>([]);
+    const [data, setData] = useState<Video[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
     const {
@@ -142,17 +152,13 @@ const Table = () => {
     async function getData() {
         setLoading(true);
         try {
-            const {data} = await categoryHttp.list<ListResponse<Category>>({
+            const {data} = await videoHttp.list<ListResponse<Video>>({
                 queryParams: {
                     search: filterManager.cleanSearchText(debounceFilterState.search),
                     page: debounceFilterState.pagination.page,
                     per_page: debounceFilterState.pagination.per_page,
                     sort: debounceFilterState.order.sort,
                     dir: debounceFilterState.order.dir,
-                    ...(
-                        debounceFilterState.extraFilter && debounceFilterState.extraFilter.is_active &&
-                        {is_active: debounceFilterState.extraFilter.is_active === 'Sim' ? 1 : 0}
-                    )
                 }
             });
             if(subscribed.current){
@@ -162,7 +168,7 @@ const Table = () => {
         }
         catch (error) {
             console.error(error);
-            if(categoryHttp.isCancelledRequest(error)){
+            if(videoHttp.isCancelledRequest(error)){
                 return;
             }
             snackbar.enqueueSnackbar('Não foi possivel carregas as informaçoes', {variant: 'error'})
@@ -182,7 +188,6 @@ const Table = () => {
             debouncedSearchTime={debouncedSearchTime}
             ref={tableRef}
             options={{
-                serverSideFilterList,
                 serverSide: true,
                 responsive: "scrollMaxHeight",
                 searchText: filterState.search as any,
@@ -190,12 +195,6 @@ const Table = () => {
                 rowsPerPage: filterState.pagination.per_page,
                 rowsPerPageOptions,
                 count: totalRecords,
-                onFilterChange: (column, filterList, type) =>{
-                    const columnIndex = columns.findIndex(c => c.name === column);
-                    filterManager.changeExtraFilter({
-                        [column]: filterList[columnIndex].length ? filterList[columnIndex][0] : null
-                    })
-                },
                 customToolbar: () => (
                     <FilterResetButton
                         handleClick={() => filterManager.resetFilter()}

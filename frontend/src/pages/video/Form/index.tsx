@@ -26,13 +26,21 @@ import {UploadField} from "./UploadField";
 import {makeStyles} from "@material-ui/core/styles";
 import GenreField from "./GenreField";
 import CategoryField from "./CategoryField";
+import CastMemberField from "./CastMemberField";
 
 const useStyles = makeStyles((theme: Theme) => ({
     cardUpload: {
         borderRadius: "4px",
         backgroundColor: "#f5f5f5",
         margin: theme.spacing(2, 0)
-    }
+    },
+    cardOpened: {
+        borderRadius: "4px",
+        backgroundColor: "#f5f5f5",
+    },
+    cardContentOpened: {
+        paddingBottom: theme.spacing(2) + 'px !important'
+    },
 }));
 
 const validationSchema = yup.object().shape({
@@ -51,6 +59,9 @@ const validationSchema = yup.object().shape({
         .label('Duração')
         .required()
         .min(1),
+    castMembers: yup.array()
+        .label('Membros de elenco')
+        .required(),
     genres: yup.array()
         .label('Gêneros')
         .required(),
@@ -78,8 +89,11 @@ export const Index = () => {
     } = useForm({
         validationSchema,
         defaultValues:{
+            rating: null,
             genres: [],
             categories: [],
+            castMembers: [],
+            opened:false
         }
     });
 
@@ -93,7 +107,7 @@ export const Index = () => {
     const classes = useStyles();
 
     useEffect(() => {
-        ['rating', 'opened', 'genres','categories', ...fileFields].forEach(name => register({name}));
+        ['rating', 'opened', 'genres','categories','castMembers',  ...fileFields].forEach(name => register({name}));
     },[register]);
 
     useEffect(() => {
@@ -129,6 +143,7 @@ export const Index = () => {
 
      async function onSubmit(formData, event) {
         setLoading(true);
+
         try {
             const http = !video
                 ? videoHttp.create(formData)
@@ -218,7 +233,12 @@ export const Index = () => {
                         </Grid>
                     </Grid>
 
-                    Elenco
+                    <CastMemberField
+                        castMembers={watch('castMembers')}
+                        setCastMembers={(value) => setValue('castMembers', value, true)}
+                        error={errors.castMembers}
+                        disabled={loading}
+                    />
                     <br />
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
@@ -296,26 +316,29 @@ export const Index = () => {
                             />
                         </CardContent>
                     </Card>
-
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                name="opened"
-                                color={"primary"}
-                                onChange={
-                                    () => setValue('opened', !getValues()['opened'])
+                    <Card className={classes.cardOpened}>
+                        <CardContent className={classes.cardContentOpened}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        name="opened"
+                                        color={"primary"}
+                                        onChange={
+                                            () => setValue('opened', !getValues()['opened'])
+                                        }
+                                        checked={watch('opened')}
+                                        disabled={loading}
+                                    />
                                 }
-                                checked={watch('opened')}
-                                disabled={loading}
+                                label = {
+                                    <Typography color="primary" variant={"subtitle2"}>
+                                        Quero que este conteudo apareça na seçao lançamentos
+                                    </Typography>
+                                }
+                                labelPlacement="end"
                             />
-                        }
-                        label = {
-                            <Typography color="primary" variant={"subtitle2"}>
-                                Quero que este conteudo apareça na seçao lançamentos
-                            </Typography>
-                        }
-                        labelPlacement="end"
-                    />
+                        </CardContent>
+                    </Card>
                 </Grid>
             </Grid>
             <SubmitActions

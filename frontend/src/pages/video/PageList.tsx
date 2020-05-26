@@ -11,6 +11,7 @@ const PageList = () => {
             <Box dir={'rtl'} paddingBottom={2}>
                 <Fab
                     title="Adicionar Video"
+                    color={"secondary"}
                     size="small"
                     component={Link}
                     to="/videos/create"
