@@ -170,7 +170,7 @@ export const Index = () => {
         try {
             const http = !video
                 ? videoHttp.create(sendData)
-                : videoHttp.update(video.id, sendData);
+                : videoHttp.update(video.id, {...sendData, _method: 'PUT'}, {http: {usePost: true}});
 
             const {data} = await http;
             snackbar.enqueueSnackbar('Video salvo com sucesso', {variant: 'success'});
