@@ -1,16 +1,16 @@
 // @flow
 import * as React from 'react';
+import {MutableRefObject, RefAttributes, useImperativeHandle, useRef} from 'react';
 import castMemberHttp from "../../../util/http/cast-member-http";
 import useHttpHandled from "../../../hooks/useHttpHandled";
-import AsyncAutocomplete from "../../../components/AsyncAutocomplete";
+import AsyncAutocomplete, {AsyncAutocompleteComponent} from "../../../components/AsyncAutocomplete";
 import {FormControl, FormControlProps, FormHelperText, Typography} from "@material-ui/core";
 import useCollectionManager from "../../../hooks/useCollectionManager";
-import {getGenresFromCategory} from "../../../util/model-filters";
 import {GridSelectedItem} from "../../../components/GridSelectedItem";
 import {GridSelected} from "../../../components/GridSelected";
-import {MutableRefObject, useRef} from "react";
+import {ref} from "yup";
 
-interface CastMemberFieldProps {
+interface CastMemberFieldProps extends RefAttributes<CastMemberFieldProps>{
     castMembers: any[],
     setCastMembers: (castMembers) => void,
     error: any;
@@ -18,15 +18,14 @@ interface CastMemberFieldProps {
     FormControlProps?: FormControlProps;
 };
 
-export interface CastMemberFiledComponent {
+export interface CastMemberFieldComponent {
     clear: () => void
 }
-const CastMemberField: React.FC<CastMemberFieldProps> = (props) => {
-
+export const CastMemberField = React.forwardRef<CastMemberFieldComponent, CastMemberFieldProps>((props, ref) => {
     const {castMembers, setCastMembers, error, disabled} = props;
     const autocompleteHttp = useHttpHandled();
     const {addItem, removeItem} = useCollectionManager(castMembers, setCastMembers)
-    // const autocompleteRef = useRef() as MutableRefObject<AsyncAutocompleteComponent>;
+    const autocompleteRef = useRef() as MutableRefObject<AsyncAutocompleteComponent>;
 
     function fetchOptions(searchText){
         return autocompleteHttp(
@@ -39,9 +38,14 @@ const CastMemberField: React.FC<CastMemberFieldProps> = (props) => {
         ).then(data => data.data)
     }
 
+    useImperativeHandle(ref, () => ({
+        clear: () => autocompleteRef.current.clear()
+    }));
+
     return (
        <>
            <AsyncAutocomplete
+               ref={autocompleteRef}
                fetchOptions={fetchOptions}
                AutocompleteProps={{
                    clearOnEscape: true,
@@ -83,6 +87,6 @@ const CastMemberField: React.FC<CastMemberFieldProps> = (props) => {
            </FormControl>
        </>
     );
-};
+});
 
 export default CastMemberField;

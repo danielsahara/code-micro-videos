@@ -18,6 +18,10 @@ interface GenreFieldProps {
     disabled?: boolean;
     FormControlProps?: FormControlProps;
 };
+
+export interface GenreFieldComponent {
+    clear: () => void
+}
 const GenreField: React.FC<GenreFieldProps> = (props) => {
     const {genres, setGenres, categories, setCategories, error, disabled} = props;
     const autocompleteHttp = useHttpHandled();

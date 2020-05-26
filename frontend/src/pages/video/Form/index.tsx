@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useEffect, useState} from 'react';
+import {createRef, MutableRefObject, useEffect, useRef, useState} from 'react';
 import {
     Card,
     CardContent,
@@ -24,9 +24,12 @@ import videoHttp from "../../../util/http/video-http";
 import {RatingField} from "./RatingField";
 import {UploadField} from "./UploadField";
 import {makeStyles} from "@material-ui/core/styles";
-import GenreField from "./GenreField";
-import CategoryField from "./CategoryField";
-import CastMemberField from "./CastMemberField";
+import GenreField, {GenreFieldComponent} from "./GenreField";
+import CategoryField, {CategoryFieldComponent} from "./CategoryField";
+import CastMemberField, {CastMemberFieldComponent} from "./CastMemberField";
+import {omit, zipObject} from 'lodash';
+import {InputFileComponent} from "../../../components/InputFile";
+
 
 const useStyles = makeStyles((theme: Theme) => ({
     cardUpload: {
@@ -104,6 +107,11 @@ export const Index = () => {
     const[loading, setLoading] = useState<boolean>(false);
     const theme = useTheme();
     const isGreaterMd = useMediaQuery(theme.breakpoints.up('md'));
+    const castMemberRef = useRef() as MutableRefObject<CastMemberFieldComponent>;
+    const genreRef = useRef() as MutableRefObject<GenreFieldComponent>;
+    const categoryRef = useRef() as MutableRefObject<CategoryFieldComponent>;
+    const uploadRef = useRef(zipObject(fileFields, fileFields.map(() => createRef()))
+    ) as MutableRefObject<{ [key: string]: MutableRefObject<InputFileComponent> }>;
     const classes = useStyles();
 
     useEffect(() => {
@@ -142,16 +150,22 @@ export const Index = () => {
     }, []);
 
      async function onSubmit(formData, event) {
-        setLoading(true);
 
+        const sendData = omit(formData, ['cast_members', 'genres', 'categories']);
+        sendData['cast_members_id'] = formData['cast_members'].map(cast_member => cast_member.id);
+        sendData['categories_id'] = formData['categories'].map(category => category.id);
+        sendData['genres_id'] = formData['genres'].map(genre => genre.id);
+
+        setLoading(true);
         try {
             const http = !video
-                ? videoHttp.create(formData)
-                : videoHttp.update(video.id, formData);
+                ? videoHttp.create(sendData)
+                : videoHttp.update(video.id, sendData);
 
             const {data} = await http;
             snackbar.enqueueSnackbar('Video salvo com sucesso', {variant: 'success'});
 
+            id && resetForm(video);
             setTimeout(() => {
                 event ? (
                         id ? history.replace(`/videos/${data.data.id}/edit`) :
@@ -167,6 +181,16 @@ export const Index = () => {
         finally {
             setLoading(false);
         }
+    }
+
+    function resetForm(data){
+         Object.keys(uploadRef.current).forEach(
+             field => uploadRef.current[field].current.clear()
+         );
+         castMemberRef.current.clear();
+         genreRef.current.clear();
+         categoryRef.current.clear();
+         reset(data);
     }
 
     return(
@@ -288,11 +312,13 @@ export const Index = () => {
                                 Imagens
                             </Typography>
                             <UploadField
+                                ref={uploadRef.current['thumb_file']}
                                 accept={'image/*'}
                                 label={'Thumb'}
                                 setValue={(value) => setValue('thumb_file' ,value)}
                             />
                             <UploadField
+                                ref={uploadRef.current['banner_file']}
                                 accept={'image/*'}
                                 label={'Banner'}
                                 setValue={(value) => setValue('banner_file' ,value)}
@@ -305,11 +331,13 @@ export const Index = () => {
                                 Imagens
                             </Typography>
                             <UploadField
+                                ref={uploadRef.current['trailer_file']}
                                 accept={'video/mp4'}
                                 label={'Trailer'}
                                 setValue={(value) => setValue('trailer_file' ,value)}
                             />
                             <UploadField
+                                ref={uploadRef.current['video_file']}
                                 accept={'video/mp4'}
                                 label={'Principal'}
                                 setValue={(value) => setValue('video_file' ,value)}

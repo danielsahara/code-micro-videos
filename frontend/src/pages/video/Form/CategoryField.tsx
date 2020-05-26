@@ -27,6 +27,11 @@ interface CategoryFieldProps {
     disabled?: boolean,
     FormControlProps?: FormControlProps;
 };
+
+export interface CategoryFieldComponent {
+    clear: () => void
+}
+
 const CategoryField: React.FC<CategoryFieldProps> = (props) => {
     const {categories, setCategories, genres, error, disabled} = props;
     const classes = useStyles();
