@@ -161,8 +161,8 @@ export const Index = () => {
 
      async function onSubmit(formData, event) {
 
-        const sendData = omit(formData, ['cast_members', 'genres', 'categories']);
-        sendData['cast_members_id'] = formData['cast_members'].map(cast_member => cast_member.id);
+        const sendData = omit(formData, ['castMembers', 'genres', 'categories']);
+        sendData['cast_members_id'] = formData['castMembers'].map(cast_member => cast_member.id);
         sendData['categories_id'] = formData['categories'].map(category => category.id);
         sendData['genres_id'] = formData['genres'].map(genre => genre.id);
 
@@ -338,7 +338,7 @@ export const Index = () => {
                     <Card className={classes.cardUpload}>
                         <CardContent>
                             <Typography color={"primary"} variant={"h6"}>
-                                Imagens
+                                Vídeos
                             </Typography>
                             <UploadField
                                 ref={uploadRef.current['trailer_file']}
