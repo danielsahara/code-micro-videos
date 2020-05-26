@@ -67,7 +67,17 @@ const validationSchema = yup.object().shape({
         .required(),
     genres: yup.array()
         .label('Gêneros')
-        .required(),
+        .required()
+        .test({
+            message: 'Cada genero escolhido precisa ter pelo menos uma categoria selecionada',
+            test(value){
+                return value.every(
+                    v => v.categories.filter(
+                        cat => this.parent.categories.map(c => c.id).includes(cat.id)
+                    ).length !== 0
+                );
+            }
+        }),
     categories: yup.array()
         .label('Categorias')
         .required(),
