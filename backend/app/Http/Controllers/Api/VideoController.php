@@ -38,6 +38,14 @@ class VideoController extends BasicCrudController
         ];
     }
 
+    protected function findOrFail($id)
+    {
+        $model = $this->model();
+        $keyName = (new $model)->getRouteKeyName();
+
+        return $this->model()::where($keyName, $id)->with('genres.categories')->firstOrFail();
+    }
+
     public function store(Request $request)
     {
         $this->addruleIfGenreHasCategories($request);
