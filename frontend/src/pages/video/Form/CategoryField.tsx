@@ -1,6 +1,6 @@
 // @flow
 import * as React from 'react';
-import AsyncAutocomplete from "../../../components/AsyncAutocomplete";
+import AsyncAutocomplete, {AsyncAutocompleteComponent} from "../../../components/AsyncAutocomplete";
 import {GridSelected} from "../../../components/GridSelected";
 import {GridSelectedItem} from "../../../components/GridSelectedItem";
 import {FormControl, FormControlProps, FormHelperText, Typography} from "@material-ui/core";
@@ -11,6 +11,8 @@ import {Genre} from "../../../util/models";
 import {getGenresFromCategory} from "../../../util/model-filters";
 import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
 import {grey} from "@material-ui/core/colors";
+import {CastMemberFieldComponent} from "./CastMemberField";
+import {MutableRefObject, useImperativeHandle, useRef} from "react";
 
 const useStyles = makeStyles((theme: Theme) => ({
     genresSubtitle: {
@@ -32,11 +34,12 @@ export interface CategoryFieldComponent {
     clear: () => void
 }
 
-const CategoryField: React.FC<CategoryFieldProps> = (props) => {
+export const CategoryField = React.forwardRef<CategoryFieldComponent, CategoryFieldProps>((props, ref) => {
     const {categories, setCategories, genres, error, disabled} = props;
     const classes = useStyles();
     const autocompleteHttp = useHttpHandled();
     const {addItem, removeItem} = useCollectionManager(categories, setCategories)
+    const autocompleteRef = useRef() as MutableRefObject<AsyncAutocompleteComponent>;
 
     function fetchOptions(searchText){
         return autocompleteHttp(
@@ -48,10 +51,15 @@ const CategoryField: React.FC<CategoryFieldProps> = (props) => {
             })
         ).then(data => data.data)
     }
+
+    useImperativeHandle(ref, () => ({
+        clear: () => autocompleteRef.current.clear()
+    }));
     
     return (
         <>
             <AsyncAutocomplete
+                ref={autocompleteRef}
                 fetchOptions={fetchOptions}
                 AutocompleteProps={{
                     // autoSelect: true,
@@ -99,6 +107,6 @@ const CategoryField: React.FC<CategoryFieldProps> = (props) => {
             </FormControl>
         </>
     );
-};
+});
 
 export default CategoryField;

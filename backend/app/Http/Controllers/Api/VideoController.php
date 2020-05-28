@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Resources\VideoResource;
 use App\Models\Video;
 use App\Rules\GenresHasCategoriesRule;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class VideoController extends BasicCrudController

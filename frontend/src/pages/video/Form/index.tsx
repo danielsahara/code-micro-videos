@@ -62,7 +62,7 @@ const validationSchema = yup.object().shape({
         .label('Duração')
         .required()
         .min(1),
-    castMembers: yup.array()
+    cast_members: yup.array()
         .label('Membros de elenco')
         .required(),
     genres: yup.array()
@@ -105,7 +105,7 @@ export const Index = () => {
             rating: null,
             genres: [],
             categories: [],
-            castMembers: [],
+            cast_members: [],
             opened:false
         }
     });
@@ -125,7 +125,7 @@ export const Index = () => {
     const classes = useStyles();
 
     useEffect(() => {
-        ['rating', 'opened', 'genres','categories','castMembers',  ...fileFields].forEach(name => register({name}));
+        ['rating', 'opened', 'genres','categories','cast_members',  ...fileFields].forEach(name => register({name}));
     },[register]);
 
     useEffect(() => {
@@ -161,8 +161,8 @@ export const Index = () => {
 
      async function onSubmit(formData, event) {
 
-        const sendData = omit(formData, ['castMembers', 'genres', 'categories']);
-        sendData['cast_members_id'] = formData['castMembers'].map(cast_member => cast_member.id);
+        const sendData = omit(formData, ['cast_members', 'genres', 'categories']);
+        sendData['cast_members_id'] = formData['cast_members'].map(cast_member => cast_member.id);
         sendData['categories_id'] = formData['categories'].map(category => category.id);
         sendData['genres_id'] = formData['genres'].map(genre => genre.id);
 
@@ -268,15 +268,17 @@ export const Index = () => {
                     </Grid>
 
                     <CastMemberField
-                        castMembers={watch('castMembers')}
-                        setCastMembers={(value) => setValue('castMembers', value, true)}
-                        error={errors.castMembers}
+                        ref={castMemberRef}
+                        castMembers={watch('cast_members')}
+                        setCastMembers={(value) => setValue('cast_members', value, true)}
+                        error={errors.cast_members}
                         disabled={loading}
                     />
                     <br />
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
                             <GenreField
+                                ref={genreRef}
                                 genres={watch('genres')}
                                 setGenres={(value) => setValue('genres', value, true)}
                                 categories={watch('categories')}
@@ -287,6 +289,7 @@ export const Index = () => {
                         </Grid>
                         <Grid item xs={12} md={6}>
                             <CategoryField
+                                ref={categoryRef}
                                 categories={watch('categories')}
                                 setCategories={(value) => setValue('categories', value, true)}
                                 genres={watch('genres')}

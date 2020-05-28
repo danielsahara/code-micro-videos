@@ -41,7 +41,6 @@ export default function Breadcrumbs() {
     function makeBreadcrumb(location: Location){
         const pathnames = location.pathname.split('/').filter((x) => x);
         pathnames.unshift('/');
-        console.log(pathnames, location.pathname);
 
         return (
             <MuiBreadcrumbs aria-label="breadcrumb">
