@@ -29,6 +29,7 @@ import CategoryField, {CategoryFieldComponent} from "./CategoryField";
 import CastMemberField, {CastMemberFieldComponent} from "./CastMemberField";
 import {omit, zipObject} from 'lodash';
 import {InputFileComponent} from "../../../components/InputFile";
+import useSnackbarFormError from "../../../hooks/useSnackbarFormError";
 
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -98,7 +99,8 @@ export const Index = () => {
         errors,
         reset,
         watch,
-        triggerValidation
+        triggerValidation,
+        formState,
     } = useForm({
         validationSchema,
         defaultValues:{
@@ -109,6 +111,8 @@ export const Index = () => {
             opened:false
         }
     });
+
+    useSnackbarFormError(formState.submitCount, errors);
 
     const snackbar = useSnackbar();
     const history = useHistory();
