@@ -126,6 +126,7 @@ export const Index = () => {
     const categoryRef = useRef() as MutableRefObject<CategoryFieldComponent>;
     const uploadRef = useRef(zipObject(fileFields, fileFields.map(() => createRef()))
     ) as MutableRefObject<{ [key: string]: MutableRefObject<InputFileComponent> }>;
+    
     const classes = useStyles();
 
     useEffect(() => {
@@ -170,6 +171,7 @@ export const Index = () => {
         sendData['categories_id'] = formData['categories'].map(category => category.id);
         sendData['genres_id'] = formData['genres'].map(genre => genre.id);
 
+        // console.log(sendData)
         setLoading(true);
         try {
             const http = !video

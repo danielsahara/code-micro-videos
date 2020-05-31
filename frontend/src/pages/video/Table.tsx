@@ -9,9 +9,11 @@ import {useSnackbar} from "notistack";
 import {FilterResetButton} from "../../components/Table/FilterResetButton";
 import useFilter from "../../hooks/useFilter";
 import videoHttp from "../../util/http/video-http";
-import {IconButton} from "@material-ui/core";
+import {IconButton, MuiThemeProvider} from "@material-ui/core";
 import {Link} from "react-router-dom";
 import EditIcon from '@material-ui/icons/Edit';
+import DeleteDialog from "../../components/DeleteDialog";
+import useDeleteCollection from "../../hooks/useDeleteCollection";
 
 // const castMemberNames = Object.values(CastMemberTypeMap)
 
@@ -103,6 +105,9 @@ const Table = () => {
     const subscribed = useRef(true);//current: true
     const [data, setData] = useState<Video[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+
+    const {openDeleteDialog, setOpenDeleteDialog, rowsToDelete, setRowsToDelete} = useDeleteCollection();
+
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
     const {
         columns,
@@ -164,6 +169,9 @@ const Table = () => {
             if(subscribed.current){
                 setData(data.data);
                 setTotalRecords(data.meta.total);
+                if(openDeleteDialog){
+                    setOpenDeleteDialog(false)
+                }
             }
         }
         catch (error) {
@@ -178,8 +186,39 @@ const Table = () => {
         }
     }
 
-    
+    function deleteRows(confirmed: boolean) {
+        if(!confirmed){
+            setOpenDeleteDialog(false);
+            return;
+        }
+        const ids = rowsToDelete
+            .data
+            .map((value) => data[value.index].id)
+            .join(',');
+
+        videoHttp
+            .deleteCollection({ids})
+            .then(response => {
+                snackbar.enqueueSnackbar('Registros exluidos com sucesso', {variant: 'success'})
+                if (rowsToDelete.data.length === filterState.pagination.per_page
+                    && filterState.pagination.page > 1) {
+                    const page = filterState.pagination.page - 2;
+                    filterManager.changePage(page);
+                }
+                else {
+                    getData();
+                }
+        })
+            .catch((error) => {
+                console.error(error)
+                snackbar.enqueueSnackbar('Não foi possivel excluir os registros', {variant: 'error'})
+            })
+    }
+
     return (
+        <>
+        {/*<MuiThemeProvider theme={makeActionStyles(columsDefinition.length - 1)}>*/}
+        <DeleteDialog open={openDeleteDialog} handleClose={deleteRows} />
         <DefaultTable
             title=""
             columns={columns}
@@ -204,9 +243,15 @@ const Table = () => {
                 onChangePage: (page) => filterManager.changePage(page),
                 onChangeRowsPerPage: (perPage) => filterManager.changeRowsPerPage(perPage),
                 onColumnSortChange: (changedColumn: string, direction: string) =>
-                    filterManager.changeColumnSort(changedColumn, direction)
+                    filterManager.changeColumnSort(changedColumn, direction),
+                onRowsDelete: (rowsDeleted: any[]) => {
+                    setRowsToDelete(rowsDeleted as any);
+                    return false;
+                },
             }}
         />
+        </>
+        // </MuiThemeProvider>
     );
 };
 
