@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {createRef, MutableRefObject, useEffect, useRef, useState} from 'react';
+import {createRef, MutableRefObject, useContext, useEffect, useRef, useState} from 'react';
 import {
     Card,
     CardContent,
@@ -30,6 +30,7 @@ import CastMemberField, {CastMemberFieldComponent} from "./CastMemberField";
 import {omit, zipObject} from 'lodash';
 import {InputFileComponent} from "../../../components/InputFile";
 import useSnackbarFormError from "../../../hooks/useSnackbarFormError";
+import LoadingContext from "../../../components/loading/LoadingContext";
 
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -126,6 +127,7 @@ export const Index = () => {
     const categoryRef = useRef() as MutableRefObject<CategoryFieldComponent>;
     const uploadRef = useRef(zipObject(fileFields, fileFields.map(() => createRef()))
     ) as MutableRefObject<{ [key: string]: MutableRefObject<InputFileComponent> }>;
+    const testLoading = useContext(LoadingContext);
     
     const classes = useStyles();
 
