@@ -1,7 +1,6 @@
 import React from 'react';
 import './App.css'
 import {Navbar} from "./components/Navbar";
-import {Page} from "./components/Page";
 import {Box, CssBaseline, MuiThemeProvider} from "@material-ui/core";
 import {BrowserRouter} from "react-router-dom";
 import AppRouter from "./routes/AppRouter";
@@ -9,12 +8,12 @@ import Breadcrumbs from "./components/Breadcrumbs";
 import theme from "./theme";
 import {SnackbarProvider} from "./components/SnackbarProvider";
 import Spinner from "./components/Spinner";
-import LoadingContext from "./components/loading/LoadingContext";
+import {LoadingProvider} from "./components/loading/LoadingProvider";
 
 const App: React.FC = () => {
   return (
       <React.Fragment>
-          <LoadingContext.Provider value={false}>
+          <LoadingProvider>
               <MuiThemeProvider theme={theme}>
                   <CssBaseline />
                   <SnackbarProvider>
@@ -28,7 +27,7 @@ const App: React.FC = () => {
                       </BrowserRouter>
                   </SnackbarProvider>
               </MuiThemeProvider>
-          </LoadingContext.Provider>
+          </LoadingProvider>
       </React.Fragment>
   );
 };
