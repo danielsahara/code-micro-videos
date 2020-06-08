@@ -1,18 +1,16 @@
 import * as React from 'react';
-import {useEffect, useReducer, useRef, useState} from 'react';
+import {useContext, useEffect, useRef, useState} from 'react';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import categoryHttp from "../../util/http/category-http";
 import {Category} from "@material-ui/icons";
 import {BadgeNo, BadgeYes} from "../../components/Badge";
-import {BooleanTypeMap, CastMemberTypeMap, ListResponse} from "../../util/models";
-import DefaultTable, {TableColumn, MuiDataTableRefComponent} from '../../components/Table'
+import {BooleanTypeMap, ListResponse} from "../../util/models";
+import DefaultTable, {MuiDataTableRefComponent, TableColumn} from '../../components/Table'
 import {useSnackbar} from "notistack";
 import {FilterResetButton} from "../../components/Table/FilterResetButton";
-import reducer, {INITIAL_STATE, Creators} from "../../store/filter";
 import useFilter from "../../hooks/useFilter";
-import * as yup from "../../util/vendor/yup";
-import {invert} from "lodash";
+import LoadingContext from "../../components/loading/LoadingContext";
 
 // const castMemberNames = Object.values(CastMemberTypeMap)
 
@@ -92,7 +90,7 @@ const Table = () => {
     const snackbar = useSnackbar();
     const subscribed = useRef(true);//current: true
     const [data, setData] = useState<Category[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
+    const loading = useContext(LoadingContext);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
     const {
         columns,
@@ -140,7 +138,6 @@ const Table = () => {
     ]);
 
     async function getData() {
-        setLoading(true);
         try {
             const {data} = await categoryHttp.list<ListResponse<Category>>({
                 queryParams: {
@@ -168,12 +165,9 @@ const Table = () => {
             snackbar.enqueueSnackbar('Não foi possivel carregas as informaçoes', {variant: 'error'})
         }
         finally {
-            setLoading(false);
         }
     }
 
-
-    
     return (
         <DefaultTable
             title=""
