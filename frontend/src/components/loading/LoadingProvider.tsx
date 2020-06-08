@@ -1,38 +1,45 @@
 import * as React from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import LoadingContext from "./LoadingContext";
-import axios from 'axios';
-import {useEffect, useState} from "react";
+import {
+    addGlobalRequestInterceptor,
+    addGlobalResponseInterceptor,
+    removeGlobalRequestInterceptor,
+    removeGlobalResponseInterceptor
+} from "../../util/http";
 
 export const LoadingProvider = (props) => {
     const[loading, setLoading] = useState<boolean>(false);
 
-    useEffect(() => {
+    useMemo(() => {
         let isSubscribed = true;
-        axios.interceptors.request.use((config) => {
+
+        const requestIds = addGlobalRequestInterceptor((config) => {
             if (isSubscribed){
                 setLoading(true);
             }
             return config;
-        });
+        })
 
-        axios.interceptors.response.use(
-            (response) => {
-                if (isSubscribed) {
-                    setLoading(false);
-                }
-
-                return response;
-            },
-            (error) => {
+        const responseIds = addGlobalResponseInterceptor((response) => {
+            if (isSubscribed) {
                 setLoading(false);
-
-                return Promise.reject(error);
             }
-        );
+
+            return response;
+            },
+        (error) => {
+            setLoading(false);
+
+            return Promise.reject(error);
+        })
+
         return () => {
             isSubscribed = false;
+            removeGlobalRequestInterceptor(requestIds);
+            removeGlobalResponseInterceptor(responseIds);
         }
-    }, [])
+    }, [true])
 
     return (
         <LoadingContext.Provider value={loading}>
