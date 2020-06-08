@@ -10,6 +10,7 @@ import {
 
 export const LoadingProvider = (props) => {
     const[loading, setLoading] = useState<boolean>(false);
+    const[countRequest, setCountRequest] = useState(0);
 
     useMemo(() => {
         let isSubscribed = true;
@@ -17,19 +18,20 @@ export const LoadingProvider = (props) => {
         const requestIds = addGlobalRequestInterceptor((config) => {
             if (isSubscribed){
                 setLoading(true);
+                setCountRequest((prevCountRequest) => prevCountRequest + 1);
             }
             return config;
         })
 
         const responseIds = addGlobalResponseInterceptor((response) => {
             if (isSubscribed) {
-                setLoading(false);
+                decrementCountRequest();
             }
 
             return response;
             },
         (error) => {
-            setLoading(false);
+            decrementCountRequest();
 
             return Promise.reject(error);
         })
@@ -40,6 +42,16 @@ export const LoadingProvider = (props) => {
             removeGlobalResponseInterceptor(responseIds);
         }
     }, [true])
+
+    useEffect(() => {
+        if(!countRequest){
+            setLoading(false);
+        }
+    }, [countRequest]);
+
+    function decrementCountRequest(){
+        setCountRequest((prevCountRequest) => prevCountRequest - 1);
+    }
 
     return (
         <LoadingContext.Provider value={loading}>
