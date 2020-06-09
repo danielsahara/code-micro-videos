@@ -75,6 +75,7 @@ const SnackbarUpload = React.forwardRef<any, SnackbarUploadProps>((props, ref) =
             <Collapse in={expanded}>
                 <List className={classes.list}>
                     <UploadItem/>
+                    <UploadItem/>
                 </List>
             </Collapse>
         </Card>
