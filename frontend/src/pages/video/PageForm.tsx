@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {Page} from "../../components/Page";
-import {Index as Form} from "../video/Form/index";
+import {Form} from "../video/Form/index";
 import {useParams} from 'react-router';
 
 export const PageForm = () => {

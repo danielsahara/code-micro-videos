@@ -32,7 +32,9 @@ import {InputFileComponent} from "../../../components/InputFile";
 import useSnackbarFormError from "../../../hooks/useSnackbarFormError";
 import LoadingContext from "../../../components/loading/LoadingContext";
 import SnackbarUpload from "../../../components/SnackbarUpload";
-
+import {useDispatch, useSelector} from "react-redux";
+import {State as UploadState, Upload} from "../../../store/upload/types";
+import {Creators} from '../../../store/upload';
 
 const useStyles = makeStyles((theme: Theme) => ({
     cardUpload: {
@@ -91,7 +93,7 @@ const validationSchema = yup.object().shape({
 
 const fileFields = Object.keys(VideoFileFieldsMap)
 
-export const Index = () => {
+export const Form = () => {
 
     const {
         register,
@@ -129,8 +131,27 @@ export const Index = () => {
     const uploadRef = useRef(zipObject(fileFields, fileFields.map(() => createRef()))
     ) as MutableRefObject<{ [key: string]: MutableRefObject<InputFileComponent> }>;
     const testLoading = useContext(LoadingContext);
-    
+
+    const uploads = useSelector<UploadState, Upload[]>((state) => state.uploads);
+
+    const dispatch = useDispatch();
+
     const classes = useStyles();
+
+    setTimeout(() => {
+        const obj: any = {
+            video: {
+                id: '1',
+                title: ' e o vento levou',
+            },
+            files: [
+                {file: new File([""], "teste.mp4")}
+            ]
+        }
+        dispatch(Creators.addUpload(obj))
+    }, 1000);
+
+    console.log(uploads);
 
     useEffect(() => {
         ['rating', 'opened', 'genres','categories','cast_members',  ...fileFields].forEach(name => register({name}));
