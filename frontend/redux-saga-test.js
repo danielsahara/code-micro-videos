@@ -1,9 +1,9 @@
 const {createStore, applyMiddleware} = require('redux');
 const {default: createSagaMiddleware} = require('redux-saga');
-const {take, put, call} = require('redux-saga/effects');
+const {take, put, call, actionChannel} = require('redux-saga/effects');
 const axios = require('axios');
 
-function reducer(state, action) {
+function reducer(state= {value: 1}, action) {
     if (action.type === 'acaoX') {
         return {value: action.value};
     }
@@ -13,18 +13,28 @@ function reducer(state, action) {
 function* helloWorldSaga() {
     console.log("hellow");
 
+    const channel = yield actionChannel('acaoY');
+    console.log(channel);
     while (true) {
         console.log("antes da acao y");
-        const action = yield take('acaoY');
+        const action = yield take(channel);
         const search = action.value;
-        const {data} = yield call(() => axios.get('http://nginx/api/videos?search=' + search));
-        console.log(data);
-        const value = 'novo valor' + Math.random();
-        console.log(value);
-        yield put({
-            type: 'acaoX',
-            value: data
-        });
+        try {
+            const {data} = yield call(() => axios.get('http://nginx/api/videos?search=' + search));
+            console.log(search)
+
+            yield put({
+                type: 'acaoX',
+                value: data
+            });
+        }
+        catch (e) {
+            yield put({
+                type: 'acaoX',
+                error: e
+            });
+        }
+
     }
     // console.log(result);
 }
@@ -36,12 +46,13 @@ const store = createStore(
     applyMiddleware(sagaMiddleware)
 );
 
+// const generator = helloWorldSaga();
+// generator.next();
 sagaMiddleware.run(helloWorldSaga);
 
 const action = (type, value) => store.dispatch({type, value});
 
-action('acaoY', 'a');
-action('acaoY', 'a');
-action('acaoW', 'a');
+action('acaoY', 'l');
+action('acaoY', 'lu');
 
 console.log(store.getState())
