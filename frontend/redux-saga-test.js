@@ -1,6 +1,6 @@
 const {createStore, applyMiddleware} = require('redux');
 const {default: createSagaMiddleware} = require('redux-saga');
-const {take, put, call, actionChannel, debounce, select} = require('redux-saga/effects');
+const {take, put, call, actionChannel, debounce, select, all, fork} = require('redux-saga/effects');
 const axios = require('axios');
 
 function reducer(state= {value: 1}, action) {
@@ -13,6 +13,14 @@ function reducer(state= {value: 1}, action) {
     return state;
 }
 
+function* sagaNonBlocking() {
+    console.log("Antes do call")
+    const {data} = yield call(
+        axios.get, 'http://nginx/api/videos'
+    );
+    console.log("depois do call")
+}
+
 function* searchData(action) {
     // console.log("hellow");
     // const channel = yield actionChannel('acaoY');
@@ -23,12 +31,24 @@ function* searchData(action) {
         // const action = yield take(channel);
         const search = action.value;
         try {
-            const {data} = yield call(() => axios.get('http://nginx/api/videos?search=' + search));
+            yield fork(sagaNonBlocking);
+            console.log("depois do fork");
+            // const [response1, response2] = yield all([
+            //     call(
+            //         axios.get, 'http://nginx/api/videos?search=' + search
+            //     ),
+            //     call(
+            //         axios.get, 'http://nginx/api/videos?search=' + search
+            //     )
+            // ]);
+
+            // console.log(JSON.stringify(response1.data.data.length), JSON.stringify(response2.data.data.length));
+
             console.log(search)
 
             yield put({
                 type: 'acaoX',
-                value: data
+                value: ''
             });
         }
         catch (e) {
@@ -41,8 +61,24 @@ function* searchData(action) {
     // console.log(result);
 }
 
+function* helloworld() {
+    console.log('Hello world');
+}
+
 function* debounceSearch() {
     yield debounce(1000, 'acaoY', searchData);
+}
+
+function* rootSaga() {
+    yield all([
+        helloworld(),
+        debounceSearch()
+    ])
+    yield fork(helloworld)
+    yield fork(debounceSearch)
+
+    console.log('final');
+
 }
 
 const sagaMiddleware = createSagaMiddleware();
@@ -52,7 +88,7 @@ const store = createStore(
     applyMiddleware(sagaMiddleware)
 );
 
-sagaMiddleware.run(debounceSearch);
+sagaMiddleware.run(rootSaga);
 
 const action = (type, value) => store.dispatch({type, value});
 
