@@ -23,9 +23,13 @@ function* uploadFile({video, fileInfo}: {video:Video, fileInfo: FileInfo}) {
 }
 
 function* sendUpload({id, fileInfo}: {id:string, fileInfo: FileInfo}) {
-    videoHttp.update(id, {
+    videoHttp.partialUpdate(id, {
+        _method: 'PATCH',
         [fileInfo.fileField]: fileInfo.file
     },{
+        http:{
+          usePost: true
+        },
         config:{
             onUploadProgress(progressEvent){
                 console.log(progressEvent);
