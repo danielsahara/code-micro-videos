@@ -20,7 +20,7 @@ export interface State {
 }
 
 export interface FileInfo {
-    ile: File;
+    file: File;
     fileField: string;
 }
 
