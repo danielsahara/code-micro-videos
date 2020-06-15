@@ -14,8 +14,13 @@ export function* uploadWatcherSaga() {
         console.log(yield select((state) => state));
 
         for (const fileInfo of payload.files){
-            const response = yield call(uploadFile, {video: payload.video, fileInfo})
-            console.log(response)
+            try {
+                const response = yield call(uploadFile, {video: payload.video, fileInfo})
+                console.log(response);
+            }
+            catch (e) {
+                console.log(e);
+            }
         }
         console.log(payload);
     }
@@ -37,7 +42,12 @@ function* uploadFile({video, fileInfo}: {video:Video, fileInfo: FileInfo}) {
             }));
         }
         catch (e) {
-            console.log(e)
+            yield put(Creators.setUploadError({
+                video,
+                fileField: fileInfo.fileField,
+                error: e
+            }));
+            throw e;
         }
     }
 }
