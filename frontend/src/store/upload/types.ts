@@ -15,8 +15,12 @@ export interface Upload{
     files: FileUpload[]
 }
 
-export interface State {
-    uploads: Upload[]
+export interface UploadModule {
+    upload: UploadState;
+}
+
+export interface UploadState {
+    uploads: Upload[];
 }
 
 export interface FileInfo {

@@ -33,7 +33,7 @@ import useSnackbarFormError from "../../../hooks/useSnackbarFormError";
 import LoadingContext from "../../../components/loading/LoadingContext";
 import SnackbarUpload from "../../../components/SnackbarUpload";
 import {useDispatch, useSelector} from "react-redux";
-import {State as UploadState, Upload} from "../../../store/upload/types";
+import {UploadState as UploadState, Upload, UploadModule} from "../../../store/upload/types";
 import {Creators} from '../../../store/upload';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -132,7 +132,9 @@ export const Form = () => {
     ) as MutableRefObject<{ [key: string]: MutableRefObject<InputFileComponent> }>;
     const testLoading = useContext(LoadingContext);
 
-    const uploads = useSelector<UploadState, Upload[]>((state) => state.uploads);
+    const uploads = useSelector<UploadModule, Upload[]>(
+        (state) => state.upload.uploads
+    );
 
     const dispatch = useDispatch();
 
