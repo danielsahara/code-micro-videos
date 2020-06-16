@@ -4,6 +4,7 @@ import MovieIcon from '@material-ui/icons/Movie';
 import {Divider, ListItem, ListItemIcon, ListItemText, Tooltip, Typography} from "@material-ui/core";
 import UploadProgress from "../UploadProgress";
 import UploadAction from "./UploadAction";
+import {Upload} from "../../store/upload/types";
 
 const useStyles = makeStyles((theme: Theme) => ({
 
@@ -24,9 +25,10 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 interface UploadItemProps {
-
+    upload: Upload;
 }
 const UploadItem : React.FC<UploadItemProps> = (props) => {
+    const {upload} = props;
 
     const classes = useStyles();
 
@@ -46,12 +48,12 @@ const UploadItem : React.FC<UploadItemProps> = (props) => {
                         className={classes.listItemText}
                         primary={
                             <Typography noWrap={true} variant={'subtitle2'} color={"inherit"}>
-                                E o vento levou
+                                {upload.video.title}
                             </Typography>
                         }
                     />
-                    <UploadProgress size={30}/>
-                    <UploadAction/>
+                    <UploadProgress size={30} uploadOrFile={upload} />
+                    <UploadAction upload={upload}/>
                 </ListItem>
             </Tooltip>
             <Divider component="li"/>

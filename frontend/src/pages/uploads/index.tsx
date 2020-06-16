@@ -3,14 +3,20 @@ import {makeStyles, Theme} from "@material-ui/core/styles";
 import {Page} from "../../components/Page";
 import {
     Card,
-    CardContent, Divider,
+    CardContent,
+    Divider,
     ExpansionPanel,
     ExpansionPanelDetails,
-    ExpansionPanelSummary, Grid, List,
+    ExpansionPanelSummary,
+    Grid,
+    List,
     Typography
 } from "@material-ui/core";
 import UploadItem from "./UploadItem";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import {useSelector} from "react-redux";
+import {Upload, UploadModule} from "../../store/upload/types";
+import {VideoFileFieldsMap} from "../../util/models";
 
 const useStyles = makeStyles((theme: Theme) => {
     return ({
@@ -27,12 +33,18 @@ const useStyles = makeStyles((theme: Theme) => {
 const Uploads = () => {
 
     const classes = useStyles();
+
+    const uploads = useSelector<UploadModule, Upload[]>(
+        (state) => state.upload.uploads
+    );
+
     return (
         <Page title={'Uploads'}>
-            <Card elevation={5}>
+            {
+                uploads.map((upload, key )=> (<Card elevation={5} key={key}>
                 <CardContent>
-                    <UploadItem>
-                        Video - E o vento levou
+                    <UploadItem uploadOrFile={upload}>
+                        {upload.video.title}
                     </UploadItem>
                     <ExpansionPanel style={{margin: 0}}>
                         <ExpansionPanelSummary
@@ -43,16 +55,22 @@ const Uploads = () => {
                         <ExpansionPanelDetails style={{padding: '0px'}}>
                             <Grid item xs={12}>
                                 <List dense={true} style={{padding: '0px'}}>
-                                    <Divider/>
-                                    <UploadItem>
-                                        Principal - nomedoarquivo.mp4
-                                    </UploadItem>
+                                    {upload.files.map((file,key) => (
+                                        <React.Fragment key={key}>
+                                            <Divider/>
+                                            <UploadItem uploadOrFile={file}>
+                                                {`${VideoFileFieldsMap[file.fileField]} - ${file.filename}`}
+                                            </UploadItem>
+                                        </React.Fragment>
+                                    ))
+                                    }
                                 </List>
                             </Grid>
                         </ExpansionPanelDetails>
                     </ExpansionPanel>
                 </CardContent>
-            </Card>
+            </Card>))
+            }
         </Page>
     );
 };
