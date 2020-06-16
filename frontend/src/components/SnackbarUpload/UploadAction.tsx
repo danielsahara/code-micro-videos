@@ -7,7 +7,9 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import {Upload} from "../../store/upload/types";
 import {useDispatch} from "react-redux";
 import {Creators} from '../../store/upload';
-import {hasError} from "../../store/upload/getters";
+import {hasError, isFinished} from "../../store/upload/getters";
+import {useEffect, useState} from "react";
+import {useDebounce} from "use-debounce";
 
 const useStyles = makeStyles((theme: Theme) => ({
     successIcon: {
@@ -20,17 +22,25 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 interface UploadActionProps {
     upload: Upload;
+    hover: boolean;
 }
 const UploadAction : React.FC<UploadActionProps> = (props) => {
-    const {upload} = props;
+    const {upload, hover} = props;
     const classes = useStyles();
     const dispatch = useDispatch();
     const error = hasError(upload);
+    const [show, setShow] = useState(false);
+    const [debouncedShow] = useDebounce(show, 2500);
+
+    useEffect(() => {
+        setShow(isFinished(upload));
+    }, [upload]);
 
     return (
-        <Fade in={true} timeout={{enter: 1000}}>
+        debouncedShow ? (
+        <Fade in={show} timeout={{enter: 1000}}>
             <ListItemSecondaryAction>
-                <span>
+                <span hidden={hover}>
                     {
                         upload.progress === 1 && !error && (
                             <IconButton className={classes.successIcon} edge={"end"}>
@@ -45,7 +55,7 @@ const UploadAction : React.FC<UploadActionProps> = (props) => {
                             </IconButton>)
                     }
                 </span>
-                <span>
+                <span hidden={!hover}>
                     <IconButton
                         color={"primary"}
                         edge={"end"}
@@ -55,7 +65,7 @@ const UploadAction : React.FC<UploadActionProps> = (props) => {
                     </IconButton>
                 </span>
             </ListItemSecondaryAction>
-        </Fade>
+        </Fade>) : null
     );
 };
 
