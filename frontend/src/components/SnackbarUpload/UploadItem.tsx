@@ -5,6 +5,7 @@ import {Divider, ListItem, ListItemIcon, ListItemText, Tooltip, Typography} from
 import UploadProgress from "../UploadProgress";
 import UploadAction from "./UploadAction";
 import {Upload} from "../../store/upload/types";
+import {hasError} from "../../store/upload/getters";
 
 const useStyles = makeStyles((theme: Theme) => ({
 
@@ -32,9 +33,14 @@ const UploadItem : React.FC<UploadItemProps> = (props) => {
 
     const classes = useStyles();
 
+    const error = hasError(upload)
+
     return (
         <>
-            <Tooltip title={"Não foi possivel fazer o upload, clique para mais detalhes"}
+            <Tooltip
+                disableFocusListener
+                disableTouchListener
+                title={error ? "Não foi possivel fazer o upload, clique para mais detalhes" : ""}
                 placement={"left"}
             >
                 <ListItem
