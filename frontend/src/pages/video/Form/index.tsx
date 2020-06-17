@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {createRef, MutableRefObject, useContext, useEffect, useMemo, useRef, useState} from 'react';
+import {createRef, MutableRefObject, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {
     Card,
     CardContent,
@@ -118,7 +118,7 @@ export const Form = () => {
 
     useSnackbarFormError(formState.submitCount, errors);
 
-    const snackbar = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
     const history = useHistory();
     const {id} = useParams();
     const[video, setVideo] = useState<Video | null>(null);
@@ -130,7 +130,7 @@ export const Form = () => {
     const categoryRef = useRef() as MutableRefObject<CategoryFieldComponent>;
     const uploadRef = useRef(zipObject(fileFields, fileFields.map(() => createRef()))
     ) as MutableRefObject<{ [key: string]: MutableRefObject<InputFileComponent> }>;
-    const testLoading = useContext(LoadingContext);
+    // const testLoading = useContext(LoadingContext);
 
     const uploads = useSelector<UploadModule, Upload[]>(
         (state) => state.upload.uploads
@@ -139,6 +139,16 @@ export const Form = () => {
     const dispatch = useDispatch();
 
     const classes = useStyles();
+
+    const resetForm = useCallback((data) => {
+        Object.keys(uploadRef.current).forEach(
+            field => uploadRef.current[field].current.clear()
+        );
+        castMemberRef.current.clear();
+        genreRef.current.clear();
+        categoryRef.current.clear();
+        reset(data);
+    }, [castMemberRef, categoryRef, genreRef, reset, uploadRef]);
 
     useMemo(() => {
         setTimeout(() => {
@@ -184,7 +194,7 @@ export const Form = () => {
     },[register]);
 
     useEffect(() => {
-        snackbar.enqueueSnackbar('', {
+        enqueueSnackbar('', {
             key: 'snackbar-upload',
             persist: true,
             anchorOrigin: {
@@ -216,7 +226,7 @@ export const Form = () => {
             }
             catch (error) {
                 console.error(error);
-                snackbar.enqueueSnackbar('Não foi possivel carregar as informaçoes', {variant: 'error'})
+                enqueueSnackbar('Não foi possivel carregar as informaçoes', {variant: 'error'})
             }
             finally {
                 setLoading(false)
@@ -225,7 +235,7 @@ export const Form = () => {
         return () => {
             isSubscribed = false;
         }
-    }, []);
+    }, [id, resetForm, enqueueSnackbar]);
 
      async function onSubmit(formData, event) {
 
@@ -242,7 +252,7 @@ export const Form = () => {
                 : videoHttp.update(video.id, {...sendData, _method: 'PUT'}, {http: {usePost: true}});
 
             const {data} = await http;
-            snackbar.enqueueSnackbar('Video salvo com sucesso', {variant: 'success'});
+            enqueueSnackbar('Video salvo com sucesso', {variant: 'success'});
 
             id && resetForm(video);
             setTimeout(() => {
@@ -255,21 +265,11 @@ export const Form = () => {
         }
         catch (error) {
             console.error(error);
-            snackbar.enqueueSnackbar('Não foi possivel salvar o video', {variant: 'error'})
+            enqueueSnackbar('Não foi possivel salvar o video', {variant: 'error'})
         }
         finally {
             setLoading(false);
         }
-    }
-
-    function resetForm(data){
-         Object.keys(uploadRef.current).forEach(
-             field => uploadRef.current[field].current.clear()
-         );
-         castMemberRef.current.clear();
-         genreRef.current.clear();
-         categoryRef.current.clear();
-         reset(data);
     }
 
     return(

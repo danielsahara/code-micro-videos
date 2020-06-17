@@ -1,18 +1,8 @@
 import * as React from 'react';
-import {
-    Box,
-    Button,
-    ButtonProps,
-    Checkbox,
-    FormControl, FormControlLabel,
-    FormLabel, MenuItem, Radio,
-    RadioGroup,
-    TextField,
-    Theme
-} from "@material-ui/core";
+import {useEffect, useState} from 'react';
+import {Box, Button, ButtonProps, MenuItem, TextField, Theme} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 import genreHttp from "../../util/http/genre-http";
-import {useEffect, useState} from "react";
 import categoryHttp from "../../util/http/category-http";
 import useForm from "react-hook-form";
 import * as yup from "../../util/vendor/yup";
@@ -44,7 +34,7 @@ export const Form = () => {
 
 
     const classes = useStyles();
-    const snackbar = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
     const history = useHistory();
     const {id} = useParams();
     const [genre, setGenre] = useState<Genre | null>(null);
@@ -58,7 +48,7 @@ export const Form = () => {
         disabled: loading,
     };
 
-    const category = getValues()['categories_id'];
+    // const category = getValues()['categories_id'];
 
     useEffect(() => {
         register({name: "categories_id"})
@@ -85,13 +75,13 @@ export const Form = () => {
                }
            } catch (error) {
                console.error(error);
-               snackbar.enqueueSnackbar('Não foi possivel carregar as informaçoes', {variant: 'error'})
+               enqueueSnackbar('Não foi possivel carregar as informaçoes', {variant: 'error'})
            } finally {
                setLoading(false);
            }
        }
        loadData();
-    }, []);
+    }, [id, reset, enqueueSnackbar]);
 
     async function onSubmit(formData, event) {
         setLoading(true);
@@ -99,7 +89,7 @@ export const Form = () => {
             const http = !genre ?  genreHttp.create(formData) : genreHttp.update(id, formData);
             const {data} = await http;
 
-            snackbar.enqueueSnackbar('Genero salvo com sucesso', {variant: 'success'})
+            enqueueSnackbar('Genero salvo com sucesso', {variant: 'success'})
 
             setTimeout(() => {
                 event ? (
@@ -110,7 +100,7 @@ export const Form = () => {
         }
         catch(error){
             console.log(error);
-            snackbar.enqueueSnackbar('Nao foi possivel salvar o genero', {variant: 'error'})
+            enqueueSnackbar('Nao foi possivel salvar o genero', {variant: 'error'})
         }
         finally{
             setLoading(false)
