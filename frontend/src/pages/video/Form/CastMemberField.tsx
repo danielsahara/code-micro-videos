@@ -1,6 +1,6 @@
 // @flow
 import * as React from 'react';
-import {MutableRefObject, RefAttributes, useImperativeHandle, useRef} from 'react';
+import {MutableRefObject, RefAttributes, useCallback, useImperativeHandle, useRef} from 'react';
 import castMemberHttp from "../../../util/http/cast-member-http";
 import useHttpHandled from "../../../hooks/useHttpHandled";
 import AsyncAutocomplete, {AsyncAutocompleteComponent} from "../../../components/AsyncAutocomplete";
@@ -27,7 +27,7 @@ export const CastMemberField = React.forwardRef<CastMemberFieldComponent, CastMe
     const {addItem, removeItem} = useCollectionManager(castMembers, setCastMembers)
     const autocompleteRef = useRef() as MutableRefObject<AsyncAutocompleteComponent>;
 
-    function fetchOptions(searchText){
+    const fetchOptions = useCallback((searchText) =>{
         return autocompleteHttp(
             castMemberHttp.list({
                 queryParams: {
@@ -36,7 +36,7 @@ export const CastMemberField = React.forwardRef<CastMemberFieldComponent, CastMe
                 }
             })
         ).then(data => data.data)
-    }
+    },[autocompleteHttp]);
 
     useImperativeHandle(ref, () => ({
         clear: () => autocompleteRef.current.clear()
