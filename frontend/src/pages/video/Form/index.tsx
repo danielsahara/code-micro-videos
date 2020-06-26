@@ -33,7 +33,7 @@ import useSnackbarFormError from "../../../hooks/useSnackbarFormError";
 import LoadingContext from "../../../components/loading/LoadingContext";
 import SnackbarUpload from "../../../components/SnackbarUpload";
 import {useDispatch, useSelector} from "react-redux";
-import {UploadState as UploadState, Upload, UploadModule} from "../../../store/upload/types";
+import {UploadState as UploadState, Upload, UploadModule, FileInfo} from "../../../store/upload/types";
 import {Creators} from '../../../store/upload';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -150,63 +150,13 @@ export const Form = () => {
         reset(data);
     }, [castMemberRef, categoryRef, genreRef, reset, uploadRef]);
 
-    useMemo(() => {
-        setTimeout(() => {
-            const obj: any = {
-                video: {
-                    id: 'd97610f6-832c-4ad8-95dc-f32f96498d28',
-                    title: ' e o vento levou',
-                },
-                files: [
-                    {
-                        file: new File([""], "teste.mp4"),
-                        fileField: 'trailer_file'
-                    },
-                    {
-                        file: new File([""], "teste.mp4"),
-                        fileField: 'video_file'
-                    }
-                ]
-            }
-            dispatch(Creators.addUpload(obj))
-            const progress1 = {
-                fileField: "trailer_file",
-                progress: 10,
-                video: {id: '1'}
-            } as any;
 
-            dispatch(Creators.updateProgress(progress1))
-
-            const progress2 = {
-                fileField: "video_file",
-                progress: 20,
-                video: {id: '1'}
-            } as any;
-            dispatch(Creators.updateProgress(progress2))
-
-        }, 1000);
-    }, [true]);
-
-    console.log(uploads);
 
     useEffect(() => {
         ['rating', 'opened', 'genres','categories','cast_members',  ...fileFields].forEach(name => register({name}));
     },[register]);
 
     useEffect(() => {
-        enqueueSnackbar('', {
-            key: 'snackbar-upload',
-            persist: true,
-            anchorOrigin: {
-                vertical: 'bottom',
-                horizontal: 'right'
-            },
-            content: (key, message) => {
-                const id = key as any;
-                return <SnackbarUpload id={id} />
-            }
-        });
-
         if (!id) {
             return;
         }
@@ -239,7 +189,7 @@ export const Form = () => {
 
      async function onSubmit(formData, event) {
 
-        const sendData = omit(formData, ['cast_members', 'genres', 'categories']);
+        const sendData = omit(formData, [...fileFields, 'cast_members', 'genres', 'categories']);
         sendData['cast_members_id'] = formData['cast_members'].map(cast_member => cast_member.id);
         sendData['categories_id'] = formData['categories'].map(category => category.id);
         sendData['genres_id'] = formData['genres'].map(genre => genre.id);
@@ -249,12 +199,14 @@ export const Form = () => {
         try {
             const http = !video
                 ? videoHttp.create(sendData)
-                : videoHttp.update(video.id, {...sendData, _method: 'PUT'}, {http: {usePost: true}});
+                : videoHttp.update(video.id, sendData);
 
             const {data} = await http;
             enqueueSnackbar('Video salvo com sucesso', {variant: 'success'});
 
+            uploadFiles(data.data)
             id && resetForm(video);
+
             setTimeout(() => {
                 event ? (
                         id ? history.replace(`/videos/${data.data.id}/edit`) :
@@ -270,6 +222,37 @@ export const Form = () => {
         finally {
             setLoading(false);
         }
+    }
+
+    function resetForm2(data) {
+        Object.keys(uploadRef.current).forEach(
+            field => uploadRef.current[field].current.clear()
+        );
+        castMemberRef.current.clear();
+        genreRef.current.clear();
+        categoryRef.current.clear();
+        reset(data);
+    }
+
+    function uploadFiles(video) {
+        const files : FileInfo[] = fileFields
+            .filter(fileField => getValues()[fileField])
+            .map(fileField => ({fileField, file: getValues()[fileField]}))
+
+        dispatch(Creators.addUpload({video, files}));
+
+        enqueueSnackbar('', {
+            key: 'snackbar-upload',
+            persist: true,
+            anchorOrigin: {
+                vertical: 'bottom',
+                horizontal: 'right'
+            },
+            content: (key, message) => {
+                const id = key as any;
+                return <SnackbarUpload id={id} />
+            }
+        });
     }
 
     return(
