@@ -3,7 +3,7 @@ import * as React from 'react';
 import AsyncAutocomplete, {AsyncAutocompleteComponent} from "../../../components/AsyncAutocomplete";
 import {GridSelected} from "../../../components/GridSelected";
 import {GridSelectedItem} from "../../../components/GridSelectedItem";
-import {FormControl, Grid, Typography, FormControlProps, FormHelperText} from "@material-ui/core";
+import {FormControl, Grid, Typography, FormControlProps, FormHelperText, useTheme} from "@material-ui/core";
 import useHttpHandled from "../../../hooks/useHttpHandled";
 import genreHttp from "../../../util/http/genre-http";
 import useCollectionManager from "../../../hooks/useCollectionManager";
@@ -30,6 +30,7 @@ export const GenreField = React.forwardRef<GenreFieldComponent, GenreFieldProps>
     const {addItem, removeItem} = useCollectionManager(genres, setGenres)
     const {removeItem: removeCategory} = useCollectionManager(categories, setCategories)
     const autocompleteRef = useRef() as MutableRefObject<AsyncAutocompleteComponent>;
+    const theme = useTheme();
 
     function fetchOptions(searchText){
         return autocompleteHttp(
@@ -65,6 +66,9 @@ export const GenreField = React.forwardRef<GenreFieldComponent, GenreFieldProps>
                     error: error !== undefined
                 }}
             />
+            <FormHelperText style={{height: theme.spacing(3)}}>
+                Escolha os generos do video
+            </FormHelperText>
             <FormControl
                 margin={"normal"}
                 fullWidth

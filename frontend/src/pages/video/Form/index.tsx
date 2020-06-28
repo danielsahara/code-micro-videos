@@ -13,7 +13,7 @@ import {
     useMediaQuery,
     useTheme
 } from "@material-ui/core";
-import useForm from "react-hook-form";
+import {useForm} from "react-hook-form";
 import * as yup from '../../../util/vendor/yup';
 import {useHistory, useParams} from 'react-router';
 import {useSnackbar} from 'notistack';
@@ -105,7 +105,17 @@ export const Form = () => {
         watch,
         triggerValidation,
         formState,
-    } = useForm({
+    } = useForm<{
+        title,
+        description,
+        year_launched,
+        duration,
+        rating,
+        cast_members,
+        genres,
+        categories,
+        opened
+    }>({
         validationSchema,
         defaultValues:{
             rating: null,
@@ -194,8 +204,6 @@ export const Form = () => {
         sendData['categories_id'] = formData['categories'].map(category => category.id);
         sendData['genres_id'] = formData['genres'].map(genre => genre.id);
 
-        // console.log(sendData)
-        setLoading(true);
         try {
             const http = !video
                 ? videoHttp.create(sendData)
@@ -238,6 +246,10 @@ export const Form = () => {
         const files : FileInfo[] = fileFields
             .filter(fileField => getValues()[fileField])
             .map(fileField => ({fileField, file: getValues()[fileField]}))
+
+        if (!files.length){
+            return;
+        }
 
         dispatch(Creators.addUpload({video, files}));
 
@@ -348,14 +360,6 @@ export const Form = () => {
                                 error={errors.categories}
                                 disabled={loading}
                             />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <FormHelperText>
-                                Escolha os generos do video
-                            </FormHelperText>
-                            <FormHelperText>
-                                Escolha pelo menos uma categoria de cada genero
-                            </FormHelperText>
                         </Grid>
                     </Grid>
 

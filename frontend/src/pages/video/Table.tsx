@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useEffect, useRef, useState} from 'react';
+import {useContext, useEffect, useRef, useState} from 'react';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import categoryHttp from "../../util/http/category-http";
@@ -14,6 +14,7 @@ import {Link} from "react-router-dom";
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteDialog from "../../components/DeleteDialog";
 import useDeleteCollection from "../../hooks/useDeleteCollection";
+import LoadingContext from "../../components/loading/LoadingContext";
 
 // const castMemberNames = Object.values(CastMemberTypeMap)
 
@@ -104,7 +105,7 @@ const Table = () => {
     const snackbar = useSnackbar();
     const subscribed = useRef(true);//current: true
     const [data, setData] = useState<Video[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
+    const loading = useContext(LoadingContext);
 
     const {openDeleteDialog, setOpenDeleteDialog, rowsToDelete, setRowsToDelete} = useDeleteCollection();
 
@@ -155,7 +156,6 @@ const Table = () => {
     ]);
 
     async function getData() {
-        setLoading(true);
         try {
             const {data} = await videoHttp.list<ListResponse<Video>>({
                 queryParams: {
@@ -180,9 +180,6 @@ const Table = () => {
                 return;
             }
             snackbar.enqueueSnackbar('Não foi possivel carregas as informaçoes', {variant: 'error'})
-        }
-        finally {
-            setLoading(false);
         }
     }
 

@@ -4,7 +4,7 @@ import {Box, Button, ButtonProps, MenuItem, TextField, Theme} from "@material-ui
 import {makeStyles} from "@material-ui/core/styles";
 import genreHttp from "../../util/http/genre-http";
 import categoryHttp from "../../util/http/category-http";
-import useForm from "react-hook-form";
+import {useForm} from "react-hook-form";
 import * as yup from "../../util/vendor/yup";
 import {useHistory, useParams} from "react-router";
 import {useSnackbar} from 'notistack';
@@ -27,7 +27,7 @@ const validationSchema = yup.object().shape({
 });
 
 export const Form = () => {
-    const {register, handleSubmit, getValues, setValue, watch, errors, reset} = useForm({
+    const {register, handleSubmit, getValues, setValue, watch, errors, reset} = useForm<{name, categories_id}>({
         validationSchema,
         defaultValues: {categories_id: []}
     });

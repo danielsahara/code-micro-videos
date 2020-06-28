@@ -11,7 +11,7 @@ import {
     Theme
 } from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
-import useForm from "react-hook-form";
+import {useForm} from "react-hook-form";
 import castMemberHttp from "../../util/http/cast-member-http";
 import {useEffect, useState} from "react";
 import * as yup from '../../util/vendor/yup';
@@ -40,7 +40,7 @@ export const Form = () => {
 
     const classes = useStyles();
 
-    const {register, handleSubmit, getValues, setValue, errors, reset, watch} = useForm({
+    const {register, handleSubmit, getValues, setValue, errors, reset, watch} = useForm<{name, type}>({
         validationSchema,
     });
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {Box, Button, ButtonProps, Checkbox, FormControlLabel, Grid, TextField, Theme} from "@material-ui/core";
-import useForm from "react-hook-form";
+import {useForm} from "react-hook-form";
 import categoryHttp from "../../util/http/category-http";
 import * as yup from '../../util/vendor/yup';
 import {useContext, useEffect, useState} from "react";
@@ -20,9 +20,15 @@ const validationSchema = yup.object().shape({
 
 export const Form = () => {
 
-    const {register, handleSubmit, getValues, errors, reset, watch, setValue, triggerValidation} = useForm({
+    const {register,
+        handleSubmit,
+        getValues,
+        errors,
+        reset,
+        watch,
+        setValue,
+        triggerValidation} = useForm<{name, is_active}>({
         validationSchema,
-        // nativeValidation: true,
         defaultValues:{
             is_active: true
         }
