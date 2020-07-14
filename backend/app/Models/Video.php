@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\SerializeDateToIso8601;
 use App\Models\Traits\UploadFiles;
 use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,7 @@ use Illuminate\Http\Request;
 
 class Video extends Model
 {
-    use SoftDeletes, Traits\Uuid, UploadFiles, Filterable;
+    use SoftDeletes, Traits\Uuid, UploadFiles, Filterable, SerializeDateToIso8601;
 
     const NO_RATING = 'L';
     const RATING_LIST = [self::NO_RATING, '10', '12', '14', '16', '18'];
